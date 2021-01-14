@@ -56,7 +56,6 @@ namespace ChessHelper
             (2, false) => "c",
             (1, false) => "b",
             (0, false) => "a"
-
         };
 
         internal void UpdateStartPos(System.Drawing.Point p, Overlay overlay)
