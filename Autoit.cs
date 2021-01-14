@@ -107,5 +107,6 @@ namespace ChessHelper
             return au3.PixelGetColor(p.X + window.X, p.Y + window.Y);
         }
 
+
     }
 }

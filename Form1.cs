@@ -36,8 +36,7 @@ namespace ChessHelper
 
         private void button1_Click(object sender, EventArgs e)
         {
-            bot.Start();
-           
+            bot.chessBoard.TestTaskScanColor();
         }
 
         private void ButtonStart_Click(object sender, EventArgs e)

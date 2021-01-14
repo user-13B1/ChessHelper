@@ -24,8 +24,6 @@ namespace ChessHelper
         Graphics gameScreen_graphics;
         System.Drawing.Size size_region;
 
-
-
         public OpenCV(Writer console, Autoit autoIt, Overlay overlay)
         {
             this.console = console;
@@ -36,7 +34,7 @@ namespace ChessHelper
             gameScreen_graphics = Graphics.FromImage(gameScreen_bitmap);
             size_region = new System.Drawing.Size(528, 528);
 
-            LoadImages(@"\figures", out figures);
+           // LoadImages(@"\figures", out figures);
 
             console.WriteLine("OpenCV loaded.");
         }
@@ -114,23 +112,52 @@ namespace ChessHelper
             return Figure.empty;
         }
 
-        internal void GetFieldsImage(int x, int y, SquareField[][] fc)
+        internal int[][] ScanColor(Field field, System.Drawing.Point p)
         {
-            int counter = 0;
+            Color RgbColor = new Color();
+            int[][] colorCells = new int[8][];
+            for (int j = 0; j < 8; j++)
+                colorCells[j] = new int[8];
+
+            System.Drawing.Size fieldSize = new System.Drawing.Size(field.Width, field.Width);
+            using Bitmap fieldImage = new Bitmap(field.Width, field.Width, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+            using Graphics fieldGraph = Graphics.FromImage(fieldImage);
+            fieldGraph.CopyFromScreen(p.X + field.offsetX, p.Y + field.offsetY, 0, 0, fieldSize);
+            using Mat gameScreen = OpenCvSharp.Extensions.BitmapConverter.ToMat(fieldImage);
+         
             for (int j = 0; j < 8; j++)
             {
                 for (int i = 0; i < 8; i++)
                 {
-                    System.Drawing.Size fieldSize = new System.Drawing.Size(66, 66);
-                    Bitmap fieldImage = new Bitmap(66, 66, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-                    using Graphics fieldGraph = Graphics.FromImage(fieldImage);
-                    fieldGraph.CopyFromScreen(x + i * 66, y + j * 66, 0, 0, fieldSize);
-                    fc[j][i].image = fieldImage;
-                   
+                    var pixel = gameScreen.Get<Vec3b>(j * field.cellWidth+1, i * field.cellWidth+1);
+                    RgbColor = Color.FromArgb(pixel.Item2, pixel.Item1, pixel.Item0);
+                    string hex = RgbColor.R.ToString("X2") + RgbColor.G.ToString("X2") + RgbColor.B.ToString("X2");
+                    Int32 iColor = int.Parse(hex, System.Globalization.NumberStyles.HexNumber);
+                    //console.WriteLine(iColor);
+                    colorCells[j][i] = iColor;
                 }
             }
 
+            return colorCells;
         }
+
+        //internal void GetFieldsImage(int x, int y, SquareField[][] fc)
+        //{
+        //    int counter = 0;
+        //    for (int j = 0; j < 8; j++)
+        //    {
+        //        for (int i = 0; i < 8; i++)
+        //        {
+        //            System.Drawing.Size fieldSize = new System.Drawing.Size(66, 66);
+        //            Bitmap fieldImage = new Bitmap(66, 66, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+        //            using Graphics fieldGraph = Graphics.FromImage(fieldImage);
+        //            fieldGraph.CopyFromScreen(x + i * 66, y + j * 66, 0, 0, fieldSize);
+        //            fc[j][i].image = fieldImage;
+
+        //        }
+        //    }
+
+        //}
 
 
 
@@ -163,7 +190,6 @@ namespace ChessHelper
 
             return true;
         }
-
 
         internal bool SearchImageFromDict(Dictionary<string, Bitmap> buttonImages, out Point centerPoint, out string name)
         {

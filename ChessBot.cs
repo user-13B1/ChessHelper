@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace ChessHelper
 {
@@ -24,13 +25,7 @@ namespace ChessHelper
             movesHystory = new List<string>();
         }
 
-        internal void Start()
-        {
-            overlay.Load();
-            chessBoard.UpdateStartPos(autoIt.GetPosField(), overlay);
-            chessBoard.UpdateMove(autoIt.GetPosField(), overlay);
-        }
-
+    
         internal void StartWork()
         {
             overlay.Load();
@@ -43,27 +38,26 @@ namespace ChessHelper
             string currMove;
             while (true)
             {
-                //Stopwatch stopwatch = new Stopwatch();
-                //stopwatch.Start();
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
 
                 currMove = chessBoard.UpdateMoveHystory();
-                if (currMove == null)
-                    continue;
-
-                if (movesHystory.Count == 0)         //First move
+              
+                if (movesHystory.Count == 0 && currMove != null)         //First move
                 {
                     console.WriteLine($"First move {currMove}");
                     movesHystory.Add(currMove);
                 }
 
-                if (currMove != movesHystory[movesHystory.Count - 1] && movesHystory.Count != 0)
+                if (currMove != null && currMove != movesHystory[movesHystory.Count - 1] && movesHystory.Count != 0)
                 {
                     movesHystory.Add(currMove);
                     console.WriteLine($"Add new move {currMove}");
                 }
 
-                //stopwatch.Stop();
-                //console.WriteLine("ElapsedMilliseconds: " + stopwatch.ElapsedMilliseconds);
+                stopwatch.Stop();
+                console.WriteLine("ElapsedMilliseconds: " + stopwatch.ElapsedMilliseconds);
+
             }
         }
 

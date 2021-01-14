@@ -4,6 +4,10 @@ using System.Text;
 using Point = OpenCvSharp.Point;
 using System.Drawing;
 using System.Diagnostics;
+using System.Threading.Tasks;
+using System.Runtime.InteropServices;
+using System.Threading;
+
 
 namespace ChessHelper
 {
@@ -12,136 +16,105 @@ namespace ChessHelper
         private Writer console;
         private OpenCV openCV;
         private Autoit autoIt;
-        internal SquareField[][] squares;
-        int figureCounter;
         Field field;
         bool whiteGame;
-
+        static object locker = new object();
+        
 
         public ChessBoard(Writer console, OpenCV openCV, Autoit autoIt)
         {
             this.console = console;
             this.openCV = openCV;
             this.autoIt = autoIt;
-            field = new Field(75,1,70,40,60);   //размеры поля для тренировки
-
-            squares = new SquareField[8][];
-            for (int j = 0; j < 8; j++)
+            field = new Field(75,1,70,40,60,600);   //размеры поля для тренировки
+            var col = autoIt.GetPixelColor(field.offsetX + field.cellFigureOffsetX, field.offsetY + field.cellFigureOffsetY);
+            if (col == 16316664 || col == 5657426)
             {
-                squares[j] = new SquareField[8];
-                for (int i = 0; i < 8; i++)
-                {
-                    string name = GetCharCoord(i, whiteGame);
-                    name = name + (j + 1).ToString();
-                    squares[j][i] = new SquareField(name);
-                }
+                if (col == 16316664)
+                    whiteGame = false;
+                else
+                    whiteGame = true;
             }
+            else
+                console.WriteLine("Ошибка определения цвета игровых фигур.");
         }
 
-        string GetCharCoord(int i,bool white) => (i,white) switch
+        internal void TestTaskScanColor()
         {
-            (0, true) => "h",
-            (1, true) => "g",
-            (2, true) => "f",
-            (3, true) => "e",
-            (4, true) => "d",
-            (5, true) => "c",
-            (6, true) => "b",
-            (7, true) => "a",
-            (7, false) => "h",
-            (6, false) => "g",
-            (5, false) => "f",
-            (4, false) => "e",
-            (3, false) => "d",
-            (2, false) => "c",
-            (1, false) => "b",
-            (0, false) => "a"
+            
+            int[][] colorCells = openCV.ScanColor(field, autoIt.GetPosWindow());
+            
+            for (int j = 0; j < 8; j++)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                   
+                    if (colorCells[j][i] == 16250755 || colorCells[j][i] == 12307269)
+                    {
+                        console.WriteLine(colorCells[j][i]);
+                        console.WriteLine(String.Format(GetCharCoord(i, j, whiteGame)));
+                    }
+                   
+                }
+            }
+
+        }
+
+
+
+
+
+        string GetCharCoord(int i,int j, bool white) => (i,white) switch
+        {
+            (0, true) => "a" + (8 - j),
+            (1, true) => "b" + (8 - j),
+            (2, true) => "c" + (8 - j),
+            (3, true) => "d" + (8 - j),
+            (4, true) => "e" + (8 - j),
+            (5, true) => "f" + (8 - j),
+            (6, true) => "g" + (8 - j),
+            (7, true) => "h" + (8 - j),
+            (7, false) => "a" + (j + 1),
+            (6, false) => "b" + (j + 1),
+            (5, false) => "c" + (j + 1),
+            (4, false) => "d" + (j + 1),
+            (3, false) => "e" + (j + 1),
+            (2, false) => "f" + (j + 1),
+            (1, false) => "g" + (j + 1),
+            (0, false) => "h" + (j + 1)
         };
-
-        internal void UpdateStartPos(System.Drawing.Point p, Overlay overlay)
-        {
-            openCV.GetFieldsImage(p.X ,p.Y, squares);
-            for (int j = 0; j < 8; j++)
-            {
-                for (int i = 0; i < 8; i++)
-                {
-                    squares[j][i].oldFigure = squares[j][i].currFigure = openCV.FigureDefinition(squares[j][i].image);
-                    if (squares[j][i].currFigure != Figure.empty)
-                    {
-                        figureCounter++;
-                        string s = squares[j][i].currFigure.ToString();
-                        overlay.DrawText($"{squares[j][i].name} {s}", i*66, j*66);
-                    }
-                }
-            }
-            console.WriteLine($"Figure count {figureCounter}");
-            overlay.UpdateFrame();
-        }
-
-        internal string UpdateMove(System.Drawing.Point p, Overlay overlay)
-        {
-            string moveStart = null;
-            string moveEnd = null;
-            overlay.ClearElements();
-            overlay.UpdateFrame();
-            openCV.GetFieldsImage(p.X, p.Y, squares);
-            for (int j = 0; j < 8; j++)
-            {
-                for (int i = 0; i < 8; i++)
-                {
-                    squares[j][i].currFigure = openCV.FigureDefinition(squares[j][i].image);
-                    
-                    if(squares[j][i].currFigure!= squares[j][i].oldFigure)
-                    {
-                        if (squares[j][i].oldFigure == Figure.empty)
-                        {
-                            moveEnd = squares[j][i].name;
-                        }
-                        else
-                        {
-                            moveEnd = squares[j][i].name;
-                            console.WriteLine("Figure hit.");
-                        }
-
-                        if (squares[j][i].currFigure == Figure.empty)
-                        {
-                            moveStart = squares[j][i].name;
-                        }
-
-                        squares[j][i].oldFigure = squares[j][i].currFigure;
-                    }
-
-
-                }
-            }
-
-            return moveStart + moveEnd;
-        }
        
         internal string UpdateMoveHystory()
         {
-
             int yellowCell = 0;
             string startMovePos = null;
             string endMovePos = null;
-           
-            int[][] colorCells = new int[8][];
-            for (int j = 0; j < 8; j++)
-                colorCells[j] = new int[8];
+            int x, y;
 
-            for (int j = 0; j < 8; j++)
-                for (int i = 0; i < 8; i++)
-                {
-                    colorCells[j][i] = autoIt.GetPixelColor(i * field.cellLenght + field.offsetX, j * field.cellLenght + field.offsetY);
-                    if (colorCells[j][i] != 15658706 && colorCells[j][i] != 7771734)
-                    {
-                        yellowCell++;
-                    }
-                }
 
-            if(yellowCell != 2)
+            //int[][] colorCells = new int[8][];
+            //for (int j = 0; j < 8; j++)
+            //    colorCells[j] = new int[8];
+
+
+            //for (int j = 0; j < 8; j++)
+            //{
+            //    for (int i = 0; i < 8; i++)
+            //    {
+            //        x = i * field.cellWidth + field.offsetX;
+            //        y = j * field.cellWidth + field.offsetY;
+            //        colorCells[j][i] = autoIt.GetPixelColor(x, y);
+            //        if (colorCells[j][i] != 15658706 && colorCells[j][i] != 7771734)
+            //            yellowCell++;
+
+            //    }
+            //}
+
+            int[][] colorCells = openCV.ScanColor(field, autoIt.GetPosWindow());
+
+            if (yellowCell != 2)
             {
-                console.WriteLine(yellowCell);
+                console.WriteLine($"yellow {yellowCell}");
                 return null;
             }
 
@@ -153,16 +126,16 @@ namespace ChessHelper
                     {
                         if (colorCells[j][i] == 16250755 || colorCells[j][i] == 12307269)
                         {
-                            var colorCellCenter = autoIt.GetPixelColor(i * field.cellLenght + field.offsetX + field.cellFigureOffsetX, j * field.cellLenght + field.offsetY + field.cellFigureOffsetY);
+                            var colorCellCenter = autoIt.GetPixelColor(i * field.cellWidth + field.offsetX + field.cellFigureOffsetX, j * field.cellWidth + field.offsetY + field.cellFigureOffsetY);
                             if (colorCellCenter == 16316664 || colorCellCenter == 5657426)    //Если стоит фигура на клетке
                             {
-                                endMovePos = String.Format("{0}{1}", GetCharCoord(i), j + 1);
+                                endMovePos = String.Format(GetCharCoord(i,j,whiteGame));
 
                             }
                             else
                             {
                                 if (startMovePos == null)
-                                    startMovePos = String.Format("{0}{1}", GetCharCoord(i), j + 1);
+                                    startMovePos = String.Format( GetCharCoord(i, j, whiteGame));
                                 else
                                 {
                                     console.WriteLine("Рокировка.");
@@ -208,34 +181,4 @@ namespace ChessHelper
         king,
     }
 
-    class SquareField
-    {
-        public Bitmap image;
-        public Figure currFigure;
-        public Figure oldFigure;
-        public string name;
-
-        public SquareField(string name)
-        {
-            this.name = name;
-        }
-    }
-
-    class Field
-    {
-        public int cellLenght;
-        public int offsetX;
-        public int offsetY;
-        public int cellFigureOffsetX;
-        public int cellFigureOffsetY;
-
-        public Field(int cellLenght, int offsetX, int offsetY, int cellFigureOffsetX, int cellFigureOffsetY)
-        {
-            this.cellLenght = cellLenght;
-            this.offsetX = offsetX;
-            this.offsetY = offsetY;
-            this.cellFigureOffsetX = cellFigureOffsetX;
-            this.cellFigureOffsetY = cellFigureOffsetY;
-        }
-    }
 }
