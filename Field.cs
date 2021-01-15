@@ -13,9 +13,9 @@ namespace ChessHelper
         public int cellFigureOffsetY;
         public int Width;
 
-        public Field(int cellLenght, int offsetX, int offsetY, int cellFigureOffsetX, int cellFigureOffsetY, int Width)
+        public Field(int cellWidth, int offsetX, int offsetY, int cellFigureOffsetX, int cellFigureOffsetY, int Width)
         {
-            this.cellWidth = cellLenght;
+            this.cellWidth = cellWidth;
             this.offsetX = offsetX;
             this.offsetY = offsetY;
             this.cellFigureOffsetX = cellFigureOffsetX;

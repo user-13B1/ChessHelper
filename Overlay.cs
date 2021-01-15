@@ -13,7 +13,6 @@ namespace ChessHelper
     {
 
         #region sharpDX
-        public int FORMWIDTH, FORMHEIGHT;
         WindowRenderTarget renderTarget;
         RenderForm overlayForm;
         SolidColorBrush brush;
@@ -21,24 +20,18 @@ namespace ChessHelper
         SharpDX.DirectWrite.TextFormat textFormat;
         #endregion
 
-        int formWidth, formHeight;
-        Autoit autoIt;
-        List<Rectangle> rects;
-        List<textOverlay> texts;
-
-
-        public Overlay(Autoit autoIt)
+      
+        private List<Rectangle> rects;
+        private List<textOverlay> texts;
+       
+        public Overlay(int formWidth, int formHeight)
         {
-            formWidth = 528;
-            formHeight = 528;
-            this.autoIt = autoIt;
+           
             overlayForm = new RenderForm("SharpDX")
             {
                 TransparencyKey = System.Drawing.Color.Black,
-               
                 Enabled = true,
                 ShowIcon = false,
-                //FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle,
                 FormBorderStyle = System.Windows.Forms.FormBorderStyle.None,
                 Width = formWidth,
                 Height = formHeight,
@@ -60,22 +53,17 @@ namespace ChessHelper
             renderTarget.StrokeWidth = 1.5f;
             brush = new SolidColorBrush(renderTarget, new RawColor4(1, 0, 0, 0.8f));
             DWfactory = new SharpDX.DirectWrite.Factory();
-            textFormat = new SharpDX.DirectWrite.TextFormat(DWfactory, "Calibri", 16);
-          
-           // overlayForm.Show();
-            
+            textFormat = new SharpDX.DirectWrite.TextFormat(DWfactory, "Calibri", 14);
         }
+        
 
-
-
-        internal void Load()
+        internal void Load(System.Drawing.Point sourcePos)
         {
             rects = new List<Rectangle>();
             texts = new List<textOverlay>();
             overlayForm.Show();
-            overlayForm.Location = autoIt.GetPosField();
+            overlayForm.Location = sourcePos;
             UpdateFrame();
-
         }
 
         public void UpdateFrame()
@@ -83,9 +71,7 @@ namespace ChessHelper
             renderTarget.BeginDraw();
             renderTarget.Clear(new RawColor4(0, 0, 0, 0));
 
-
-           // renderTarget.DrawRectangle(new RawRectangleF(0, 0, formWidth, formHeight), brush);
-
+            renderTarget.DrawRectangle(new RawRectangleF(0, 0, overlayForm.Width, overlayForm.Height), brush);
             foreach (var rect in rects)
             {
                 renderTarget.DrawRectangle(new RawRectangleF(rect.X - 1, rect.Y - 1, rect.Width + rect.X + 1, rect.Height + rect.Y + 1), brush);
@@ -94,14 +80,10 @@ namespace ChessHelper
             foreach (var text in texts)
             {
                 renderTarget.DrawText(text.s, textFormat, new RawRectangleF(text.pos.X, text.pos.Y, text.pos.X + 120, text.pos.Y + 40), brush);
-
             }
-
 
             renderTarget.Flush();
             renderTarget.EndDraw();
-            overlayForm.Activate();
-            Thread.Sleep(16);
         }
 
         public void ClearElements()
@@ -110,17 +92,10 @@ namespace ChessHelper
             texts.Clear();
         }
 
-        internal void DrawRect(int x, int y, int width, int height)
-        {
-            rects.Add(new Rectangle(x, y, width, height));
-            // UpdateFrame();
-        }
+        internal void DrawRect(int x, int y, int width, int height)=> rects.Add(new Rectangle(x, y, width, height));
       
-        internal void DrawText(string s, int x, int y)
-        {
-            texts.Add(new textOverlay(s, new Point(x, y)));
-            // UpdateFrame();
-        }
+        internal void DrawText(string s, int x, int y) => texts.Add(new textOverlay(s, new Point(x, y)));
+        
 
         struct textOverlay
         {

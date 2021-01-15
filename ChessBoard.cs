@@ -17,9 +17,8 @@ namespace ChessHelper
         private OpenCV openCV;
         private Autoit autoIt;
         Field field;
-        bool whiteGame;
-        static object locker = new object();
-        
+        internal bool whiteGame;
+        internal Overlay overlay;
 
         public ChessBoard(Writer console, OpenCV openCV, Autoit autoIt)
         {
@@ -27,42 +26,57 @@ namespace ChessHelper
             this.openCV = openCV;
             this.autoIt = autoIt;
             field = new Field(75,1,70,40,60,600);   //размеры поля для тренировки
+           // field = new Field(66,1,142,34,54,528); //onlanie
+            
+            overlay = new Overlay(field.Width, field.Width);
+        }
+
+        internal void UpdateMyFigureColor()
+        {
             var col = autoIt.GetPixelColor(field.offsetX + field.cellFigureOffsetX, field.offsetY + field.cellFigureOffsetY);
             if (col == 16316664 || col == 5657426)
             {
                 if (col == 16316664)
+                {
                     whiteGame = false;
+                    console.WriteLine("Игра за черных.");
+                }
                 else
+                {
+                    console.WriteLine("Игра за белых.");
                     whiteGame = true;
+                }
             }
             else
                 console.WriteLine("Ошибка определения цвета игровых фигур.");
         }
 
-        internal void TestTaskScanColor()
+        internal void OverlayLoad()
         {
-            
-            int[][] colorCells = openCV.ScanColor(field, autoIt.GetPosWindow());
-            
-            for (int j = 0; j < 8; j++)
-            {
-                for (int i = 0; i < 8; i++)
-                {
-                   
-                    if (colorCells[j][i] == 16250755 || colorCells[j][i] == 12307269)
-                    {
-                        console.WriteLine(colorCells[j][i]);
-                        console.WriteLine(String.Format(GetCharCoord(i, j, whiteGame)));
-                    }
-                   
-                }
-            }
-
+            System.Drawing.Point p = autoIt.GetPosField();
+            p.X += field.offsetX;
+            p.Y += field.offsetY;
+            overlay.Load(p);
         }
 
+        internal void DrawBestMove(string bestMove)
+        {
+            int i1 = GetColumn(bestMove[0], whiteGame);
+            int j1 = GetRow(bestMove[1], whiteGame);
+            int i2 = GetColumn(bestMove[2], whiteGame);
+            int j2 = GetRow(bestMove[3], whiteGame);
 
+            if (i1 == -1|| i2 == -1 || j1 == -1 || j2 == -1)
+            {
+                console.WriteLine("Ошибка координат доски");
+                return;
+            }
 
-
+            overlay.ClearElements();
+            overlay.DrawRect(i1 * field.cellWidth, j1 * field.cellWidth, field.cellWidth, field.cellWidth);
+            overlay.DrawRect(i2 * field.cellWidth, j2 * field.cellWidth, field.cellWidth, field.cellWidth);
+            overlay.UpdateFrame();
+        }
 
         string GetCharCoord(int i,int j, bool white) => (i,white) switch
         {
@@ -81,42 +95,73 @@ namespace ChessHelper
             (3, false) => "e" + (j + 1),
             (2, false) => "f" + (j + 1),
             (1, false) => "g" + (j + 1),
-            (0, false) => "h" + (j + 1)
+            (0, false) => "h" + (j + 1),
+             _ => throw new NotImplementedException()
         };
-       
+
+        int GetColumn(char c, bool white) => (c, white) switch
+        {
+            ('a', true) => 0,
+            ('b', true) => 1,
+            ('c', true) => 2,
+            ('d', true) => 3,
+            ('e', true) => 4,
+            ('f', true) => 5,
+            ('g', true) => 6,
+            ('h', true) => 7,
+
+            ('a', false) => 7,
+            ('b', false) => 6,
+            ('c', false) => 5,
+            ('d', false) => 4,
+            ('e', false) => 3,
+            ('f', false) => 2,
+            ('g', false) => 1,
+            ('h', false) => 0,
+            _ => -1
+        };
+
+        int GetRow(char c, bool white) => (c, white) switch
+        {
+            ('1', true) => 7,
+            ('2', true) => 6,
+            ('3', true) => 5,
+            ('4', true) => 4,
+            ('5', true) => 3,
+            ('6', true) => 2,
+            ('7', true) => 1,
+            ('8', true) => 0,
+
+            ('1', false) => 0,
+            ('2', false) => 1,
+            ('3', false) => 2,
+            ('4', false) => 3,
+            ('5', false) => 4,
+            ('6', false) => 5,
+            ('7', false) => 6,
+            ('8', false) => 7,
+            _ => -1
+        };
+
         internal string UpdateMoveHystory()
         {
-            int yellowCell = 0;
+            int errorCellColor = 0;
             string startMovePos = null;
             string endMovePos = null;
-            int x, y;
-
-
-            //int[][] colorCells = new int[8][];
-            //for (int j = 0; j < 8; j++)
-            //    colorCells[j] = new int[8];
-
-
-            //for (int j = 0; j < 8; j++)
-            //{
-            //    for (int i = 0; i < 8; i++)
-            //    {
-            //        x = i * field.cellWidth + field.offsetX;
-            //        y = j * field.cellWidth + field.offsetY;
-            //        colorCells[j][i] = autoIt.GetPixelColor(x, y);
-            //        if (colorCells[j][i] != 15658706 && colorCells[j][i] != 7771734)
-            //            yellowCell++;
-
-            //    }
-            //}
-
             int[][] colorCells = openCV.ScanColor(field, autoIt.GetPosWindow());
 
-            if (yellowCell != 2)
+            for (int j = 0; j < 8; j++)
             {
-                console.WriteLine($"yellow {yellowCell}");
-                return null;
+                for (int i = 0; i < 8; i++)
+                {
+                    if (colorCells[j][i] != 15658706 && colorCells[j][i] != 7771734)
+                        errorCellColor++;
+                }
             }
+
+            if (errorCellColor != 2)
+                return null;
+           
 
             for (int j = 0; j < 8; j++)
             {
@@ -129,56 +174,94 @@ namespace ChessHelper
                             var colorCellCenter = autoIt.GetPixelColor(i * field.cellWidth + field.offsetX + field.cellFigureOffsetX, j * field.cellWidth + field.offsetY + field.cellFigureOffsetY);
                             if (colorCellCenter == 16316664 || colorCellCenter == 5657426)    //Если стоит фигура на клетке
                             {
-                                endMovePos = String.Format(GetCharCoord(i,j,whiteGame));
-
+                                endMovePos = String.Format(GetCharCoord(i, j, whiteGame));
                             }
                             else
                             {
                                 if (startMovePos == null)
-                                    startMovePos = String.Format( GetCharCoord(i, j, whiteGame));
-                                else
                                 {
-                                    console.WriteLine("Рокировка.");
-
+                                    startMovePos = String.Format(GetCharCoord(i, j, whiteGame));
+                                }
+                                else                                                //Если две пустых желтых клетки
+                                {
+                                    if (IsCastling(colorCells, out string s))       //Проверка рокировки
+                                        return s;
                                 }
                             }
 
                         }
                         else
-                        {
-                            console.WriteLine("Ошибка обновления расстановки фигур");
                             return null;
-                        }
-
-
                     }
                 }
             }
 
             if (startMovePos == null || endMovePos == null)
                 return null;
-
           
             string lastwMove = startMovePos + endMovePos;
             return lastwMove;
         }
-    }
 
-    public enum Figure
-    {
-        empty,
-        Pawn,
-        Rook,
-        Knight,
-        Elephant,
-        Queen,
-        King,
-        pawn,
-        rook,
-        knight,
-        elephant,
-        queen,
-        king,
+        private bool IsCastling(int[][] colorCells, out string s)
+        {
+            //green 12307269
+            //yellow  16250755
+            s = null;
+            //Игра черными
+            if (colorCells[0][0] == 16250755 && colorCells[0][3] == 12307269)
+            {
+                s = "e1g1";
+                return true;
+            }
+
+            if (colorCells[0][7] == 12307269 && colorCells[0][3] == 12307269)
+            {
+                s = "e1c1";
+                return true;
+            }
+
+            if (colorCells[7][0] == 12307269 && colorCells[7][3] == 16250755)
+            {
+                s = "e8g8";
+                return true;
+            }
+
+            if (colorCells[7][7] == 16250755 && colorCells[7][3] == 16250755)
+            {
+                s = "e8c8";
+                return true;
+            }
+
+            //игра белыми
+            if (colorCells[0][0] == 16250755 && colorCells[0][4] == 16250755)
+            {
+                s = "e8c8";
+                return true;
+            }
+
+            if (colorCells[0][4] == 16250755 && colorCells[0][7] == 12307269)
+            {
+                s = "e8g8";
+                return true;
+            }
+
+            if (colorCells[7][4] == 12307269 && colorCells[7][0] == 12307269)
+            {
+                s = "e1c1";
+                return true;
+            }
+
+            if (colorCells[7][4] == 12307269 && colorCells[7][7] == 16250755)
+            {
+                s = "e1g1";
+                return true;
+            }
+
+           
+            return false;
+        }
+
     }
 
 }

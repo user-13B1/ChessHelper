@@ -18,99 +18,20 @@ namespace ChessHelper
     {
         private readonly Writer console;
         private readonly Autoit autoIt;
-        private readonly Overlay overlay;
-        public Dictionary<string, Bitmap> figures;
         Bitmap gameScreen_bitmap;
         Graphics gameScreen_graphics;
         System.Drawing.Size size_region;
 
-        public OpenCV(Writer console, Autoit autoIt, Overlay overlay)
+        public OpenCV(Writer console, Autoit autoIt)
         {
             this.console = console;
             this.autoIt = autoIt;
-            this.overlay = overlay;
-
             gameScreen_bitmap = new Bitmap(528, 528, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
             gameScreen_graphics = Graphics.FromImage(gameScreen_bitmap);
             size_region = new System.Drawing.Size(528, 528);
-
-           // LoadImages(@"\figures", out figures);
-
             console.WriteLine("OpenCV loaded.");
         }
 
-        internal Figure FigureDefinition(Bitmap field)
-        {
-            double threshold = 0.90;
-            using Mat fieldImg = OpenCvSharp.Extensions.BitmapConverter.ToMat(field);       //Сохраняем скрин экрана в mat
-            using Mat fieldImgGray = fieldImg.CvtColor(ColorConversionCodes.BGR2GRAY);
-            
-
-            foreach (KeyValuePair<string, Bitmap> figure in figures)
-            {
-                using Mat searchFigureImg = OpenCvSharp.Extensions.BitmapConverter.ToMat(figure.Value);
-                using Mat searchFigureImgGray = searchFigureImg.CvtColor(ColorConversionCodes.BGR2GRAY);
-                using Mat result = new Mat();
-               
-                Cv2.MatchTemplate(fieldImgGray, searchFigureImgGray, result, TemplateMatchModes.CCoeffNormed);        //Поиск шаблона
-                Cv2.Threshold(result, result, threshold, 1.0, ThresholdTypes.Tozero);
-                Cv2.MinMaxLoc(result, out double minVal, out double maxVal, out OpenCvSharp.Point minLoc, out OpenCvSharp.Point maxLoc); //Поиск точки
-
-                if (maxVal > threshold)
-                {
-                  //  console.WriteLine(maxVal);
-
-                    switch (figure.Key)
-                    {
-                        case "b_rook_1":
-                        case "b_rook_2":
-                            return Figure.rook;
-                        case "b_pawn_1":
-                        case "b_pawn_2":
-                            return Figure.pawn;
-                        case "b_knight_1":
-                        case "b_knight_2":
-                            return Figure.knight;
-                        case "b_elephant_1":
-                        case "b_elephant_2":
-                            return Figure.elephant;
-                        case "b_queen_1":
-                        case "b_queen_2":
-                            return Figure.queen;
-                        case "b_king_1":
-                        case "b_king_2":
-                            return Figure.king;
-
-                        case "w_rook_1":
-                        case "w_rook_2":
-                            return Figure.Rook;
-                        case "w_pawn_1":
-                        case "w_pawn_2":
-                            return Figure.Pawn;
-                        case "w_knight_1":
-                        case "w_knight_2":
-                            return Figure.Knight;
-                        case "w_elephant_1":
-                        case "w_elephant_2":
-                            return Figure.Elephant;
-                        case "w_queen_1":
-                        case "w_queen_2":
-                            return Figure.Queen;
-                        case "w_king_1":
-                        case "w_king_2":
-                            return Figure.King;
-
-                        default:
-                            return Figure.empty;
-                    }
-
-                }
-
-
-            }
-
-            return Figure.empty;
-        }
 
         internal int[][] ScanColor(Field field, System.Drawing.Point p)
         {
@@ -129,7 +50,7 @@ namespace ChessHelper
             {
                 for (int i = 0; i < 8; i++)
                 {
-                    var pixel = gameScreen.Get<Vec3b>(j * field.cellWidth+1, i * field.cellWidth+1);
+                    var pixel = gameScreen.Get<Vec3b>(j * field.cellWidth+3, i * field.cellWidth+3);
                     RgbColor = Color.FromArgb(pixel.Item2, pixel.Item1, pixel.Item0);
                     string hex = RgbColor.R.ToString("X2") + RgbColor.G.ToString("X2") + RgbColor.B.ToString("X2");
                     Int32 iColor = int.Parse(hex, System.Globalization.NumberStyles.HexNumber);
@@ -140,27 +61,6 @@ namespace ChessHelper
 
             return colorCells;
         }
-
-        //internal void GetFieldsImage(int x, int y, SquareField[][] fc)
-        //{
-        //    int counter = 0;
-        //    for (int j = 0; j < 8; j++)
-        //    {
-        //        for (int i = 0; i < 8; i++)
-        //        {
-        //            System.Drawing.Size fieldSize = new System.Drawing.Size(66, 66);
-        //            Bitmap fieldImage = new Bitmap(66, 66, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-        //            using Graphics fieldGraph = Graphics.FromImage(fieldImage);
-        //            fieldGraph.CopyFromScreen(x + i * 66, y + j * 66, 0, 0, fieldSize);
-        //            fc[j][i].image = fieldImage;
-
-        //        }
-        //    }
-
-        //}
-
-
-
 
         private bool LoadImages(string folderName, out Dictionary<string, Bitmap> images)
         {
@@ -214,7 +114,7 @@ namespace ChessHelper
                 if (maxVal > threshold)
                 {
                     centerPoint = new OpenCvSharp.Point(maxLoc.X + buttonImage.Value.Width / 2, maxLoc.Y + buttonImage.Value.Height / 2);
-                    overlay.DrawRect(maxLoc.X, maxLoc.Y, buttonImage.Value.Width, buttonImage.Value.Height);
+                   // overlay.DrawRect(maxLoc.X, maxLoc.Y, buttonImage.Value.Width, buttonImage.Value.Height);
                     name = buttonImage.Key;
                     return true;
                 }
@@ -353,6 +253,24 @@ namespace ChessHelper
         //    //Cv2.WaitKey();
 
         //    return true;
+        //}
+
+        //internal void GetFieldsImage(int x, int y, SquareField[][] fc)
+        //{
+        //    int counter = 0;
+        //    for (int j = 0; j < 8; j++)
+        //    {
+        //        for (int i = 0; i < 8; i++)
+        //        {
+        //            System.Drawing.Size fieldSize = new System.Drawing.Size(66, 66);
+        //            Bitmap fieldImage = new Bitmap(66, 66, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+        //            using Graphics fieldGraph = Graphics.FromImage(fieldImage);
+        //            fieldGraph.CopyFromScreen(x + i * 66, y + j * 66, 0, 0, fieldSize);
+        //            fc[j][i].image = fieldImage;
+
+        //        }
+        //    }
+
         //}
 
     }

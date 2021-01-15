@@ -36,12 +36,26 @@ namespace ChessHelper
 
         private void button1_Click(object sender, EventArgs e)
         {
-            bot.chessBoard.TestTaskScanColor();
+           
         }
 
         private void ButtonStart_Click(object sender, EventArgs e)
         {
             bot.StartWork();
         }
+
+        private void textBoxDepth_TextChanged(object sender, EventArgs e)
+        {
+            int value = 10;
+            if (!Int32.TryParse(textBoxDepth.Text, out _))
+                textBoxDepth.Text = 10.ToString();
+            else
+            {
+                value = Int32.Parse(textBoxDepth.Text);
+                bot.SetDepthMoves(value);
+            }
+            
+        }
+
     }
 }
