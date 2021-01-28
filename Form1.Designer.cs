@@ -1,7 +1,7 @@
 ﻿
 namespace ChessHelper
 {
-    partial class Form1
+    partial class ChessHelp
     {
         /// <summary>
         ///  Required designer variable.
@@ -29,10 +29,13 @@ namespace ChessHelper
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ChessHelp));
             this.ConsoleBox = new System.Windows.Forms.TextBox();
             this.ButtonStart = new System.Windows.Forms.Button();
-            this.textBoxDepth = new System.Windows.Forms.TextBox();
             this.LabelDepth = new System.Windows.Forms.Label();
+            this.trackBar1 = new System.Windows.Forms.TrackBar();
+            this.textBoxDepth = new System.Windows.Forms.TextBox();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.SuspendLayout();
             // 
             // ConsoleBox
@@ -41,12 +44,12 @@ namespace ChessHelper
             this.ConsoleBox.Multiline = true;
             this.ConsoleBox.Name = "ConsoleBox";
             this.ConsoleBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.ConsoleBox.Size = new System.Drawing.Size(189, 139);
+            this.ConsoleBox.Size = new System.Drawing.Size(180, 127);
             this.ConsoleBox.TabIndex = 1;
             // 
             // ButtonStart
             // 
-            this.ButtonStart.Location = new System.Drawing.Point(126, 201);
+            this.ButtonStart.Location = new System.Drawing.Point(117, 256);
             this.ButtonStart.Name = "ButtonStart";
             this.ButtonStart.Size = new System.Drawing.Size(75, 23);
             this.ButtonStart.TabIndex = 3;
@@ -54,36 +57,53 @@ namespace ChessHelper
             this.ButtonStart.UseVisualStyleBackColor = true;
             this.ButtonStart.Click += new System.EventHandler(this.ButtonStart_Click);
             // 
-            // textBoxDepth
-            // 
-            this.textBoxDepth.Location = new System.Drawing.Point(161, 157);
-            this.textBoxDepth.Name = "textBoxDepth";
-            this.textBoxDepth.Size = new System.Drawing.Size(40, 23);
-            this.textBoxDepth.TabIndex = 4;
-            this.textBoxDepth.Text = "10";
-            this.textBoxDepth.TextChanged += new System.EventHandler(this.textBoxDepth_TextChanged);
-            // 
             // LabelDepth
             // 
             this.LabelDepth.AutoSize = true;
-            this.LabelDepth.Location = new System.Drawing.Point(117, 160);
+            this.LabelDepth.Location = new System.Drawing.Point(12, 154);
             this.LabelDepth.Name = "LabelDepth";
             this.LabelDepth.Size = new System.Drawing.Size(39, 15);
             this.LabelDepth.TabIndex = 5;
             this.LabelDepth.Text = "Depth";
             // 
-            // Form1
+            // trackBar1
+            // 
+            this.trackBar1.Location = new System.Drawing.Point(50, 145);
+            this.trackBar1.Maximum = 20;
+            this.trackBar1.Minimum = 5;
+            this.trackBar1.Name = "trackBar1";
+            this.trackBar1.Size = new System.Drawing.Size(142, 45);
+            this.trackBar1.TabIndex = 6;
+            this.trackBar1.Tag = "";
+            this.trackBar1.TickStyle = System.Windows.Forms.TickStyle.TopLeft;
+            this.trackBar1.Value = 12;
+            this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll);
+            // 
+            // textBoxDepth
+            // 
+            this.textBoxDepth.Enabled = false;
+            this.textBoxDepth.Location = new System.Drawing.Point(12, 172);
+            this.textBoxDepth.Name = "textBoxDepth";
+            this.textBoxDepth.Size = new System.Drawing.Size(36, 23);
+            this.textBoxDepth.TabIndex = 4;
+            this.textBoxDepth.Text = "12";
+            this.textBoxDepth.TextChanged += new System.EventHandler(this.TextBoxDepth_TextChanged);
+            // 
+            // ChessHelp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(213, 236);
+            this.ClientSize = new System.Drawing.Size(204, 291);
+            this.Controls.Add(this.trackBar1);
             this.Controls.Add(this.LabelDepth);
             this.Controls.Add(this.textBoxDepth);
             this.Controls.Add(this.ButtonStart);
             this.Controls.Add(this.ConsoleBox);
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Name = "ChessHelp";
+            this.Text = "ChessHelper";
             this.Load += new System.EventHandler(this.Form1_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -92,8 +112,9 @@ namespace ChessHelper
         #endregion
         private System.Windows.Forms.TextBox ConsoleBox;
         private System.Windows.Forms.Button ButtonStart;
-        private System.Windows.Forms.TextBox textBoxDepth;
         private System.Windows.Forms.Label LabelDepth;
+        private System.Windows.Forms.TrackBar trackBar1;
+        private System.Windows.Forms.TextBox textBoxDepth;
     }
 }
 

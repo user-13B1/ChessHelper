@@ -17,25 +17,23 @@ namespace ChessHelper
     class OpenCV
     {
         private readonly Writer console;
-        private readonly Autoit autoIt;
-        Bitmap gameScreen_bitmap;
-        Graphics gameScreen_graphics;
-        System.Drawing.Size size_region;
+        //readonly Bitmap gameScreen_bitmap;
+        //readonly Graphics gameScreen_graphics;
+        //System.Drawing.Size size_region;
 
-        public OpenCV(Writer console, Autoit autoIt)
+        public OpenCV(Writer console)
         {
             this.console = console;
-            this.autoIt = autoIt;
-            gameScreen_bitmap = new Bitmap(528, 528, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-            gameScreen_graphics = Graphics.FromImage(gameScreen_bitmap);
-            size_region = new System.Drawing.Size(528, 528);
+            //gameScreen_bitmap = new Bitmap(528, 528, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+            //gameScreen_graphics = Graphics.FromImage(gameScreen_bitmap);
+            //size_region = new System.Drawing.Size(528, 528);
             console.WriteLine("OpenCV loaded.");
         }
 
 
         internal int[][] ScanColor(Field field, System.Drawing.Point p)
         {
-            Color RgbColor = new Color();
+            Color RgbColor;
             int[][] colorCells = new int[8][];
             for (int j = 0; j < 8; j++)
                 colorCells[j] = new int[8];
@@ -54,7 +52,6 @@ namespace ChessHelper
                     RgbColor = Color.FromArgb(pixel.Item2, pixel.Item1, pixel.Item0);
                     string hex = RgbColor.R.ToString("X2") + RgbColor.G.ToString("X2") + RgbColor.B.ToString("X2");
                     Int32 iColor = int.Parse(hex, System.Globalization.NumberStyles.HexNumber);
-                    //console.WriteLine(iColor);
                     colorCells[j][i] = iColor;
                 }
             }
@@ -91,37 +88,37 @@ namespace ChessHelper
             return true;
         }
 
-        internal bool SearchImageFromDict(Dictionary<string, Bitmap> buttonImages, out Point centerPoint, out string name)
-        {
-            double threshold = 0.85;
-            name = null;
-            centerPoint = new OpenCvSharp.Point();
+        //internal bool SearchImageFromDict(Dictionary<string, Bitmap> buttonImages, out Point centerPoint, out string name)
+        //{
+        //    double threshold = 0.85;
+        //    name = null;
+        //    centerPoint = new OpenCvSharp.Point();
 
-            gameScreen_graphics.CopyFromScreen(528, 528, 0, 0, size_region);
-            using Mat gameScreen = OpenCvSharp.Extensions.BitmapConverter.ToMat(gameScreen_bitmap);       //Сохраняем скрин экрана в mat
-            using Mat mat_region_desktop_gray = gameScreen.CvtColor(ColorConversionCodes.BGR2GRAY);
+        //    gameScreen_graphics.CopyFromScreen(528, 528, 0, 0, size_region);
+        //    using Mat gameScreen = OpenCvSharp.Extensions.BitmapConverter.ToMat(gameScreen_bitmap);       //Сохраняем скрин экрана в mat
+        //    using Mat mat_region_desktop_gray = gameScreen.CvtColor(ColorConversionCodes.BGR2GRAY);
 
 
-            foreach (KeyValuePair<string, Bitmap> buttonImage in buttonImages)
-            {
-                using Mat searchImg = OpenCvSharp.Extensions.BitmapConverter.ToMat(buttonImage.Value);
-                using Mat searchImg_gray = searchImg.CvtColor(ColorConversionCodes.BGR2GRAY);
+        //    foreach (KeyValuePair<string, Bitmap> buttonImage in buttonImages)
+        //    {
+        //        using Mat searchImg = OpenCvSharp.Extensions.BitmapConverter.ToMat(buttonImage.Value);
+        //        using Mat searchImg_gray = searchImg.CvtColor(ColorConversionCodes.BGR2GRAY);
                
-                using Mat result = new Mat();
-                Cv2.MatchTemplate(mat_region_desktop_gray, searchImg_gray, result, TemplateMatchModes.CCoeffNormed);        //Поиск шаблона
-                Cv2.Threshold(result, result, threshold, 1.0, ThresholdTypes.Tozero);
-                Cv2.MinMaxLoc(result, out double minVal, out double maxVal, out OpenCvSharp.Point minLoc, out OpenCvSharp.Point maxLoc); //Поиск точки
-                if (maxVal > threshold)
-                {
-                    centerPoint = new OpenCvSharp.Point(maxLoc.X + buttonImage.Value.Width / 2, maxLoc.Y + buttonImage.Value.Height / 2);
-                   // overlay.DrawRect(maxLoc.X, maxLoc.Y, buttonImage.Value.Width, buttonImage.Value.Height);
-                    name = buttonImage.Key;
-                    return true;
-                }
-            }
+        //        using Mat result = new Mat();
+        //        Cv2.MatchTemplate(mat_region_desktop_gray, searchImg_gray, result, TemplateMatchModes.CCoeffNormed);        //Поиск шаблона
+        //        Cv2.Threshold(result, result, threshold, 1.0, ThresholdTypes.Tozero);
+        //        Cv2.MinMaxLoc(result, out double minVal, out double maxVal, out OpenCvSharp.Point minLoc, out OpenCvSharp.Point maxLoc); //Поиск точки
+        //        if (maxVal > threshold)
+        //        {
+        //            centerPoint = new OpenCvSharp.Point(maxLoc.X + buttonImage.Value.Width / 2, maxLoc.Y + buttonImage.Value.Height / 2);
+        //           // overlay.DrawRect(maxLoc.X, maxLoc.Y, buttonImage.Value.Width, buttonImage.Value.Height);
+        //            name = buttonImage.Key;
+        //            return true;
+        //        }
+        //    }
 
-            return false;
-        }
+        //    return false;
+        //}
 
         //internal bool SearchImageFromRegion(Bitmap bitmap, out Point f, Point start, Point end)
         //{

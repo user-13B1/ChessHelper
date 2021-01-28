@@ -13,11 +13,11 @@ namespace ChessHelper
 {
     class ChessBoard
     {
-        private Writer console;
-        private OpenCV openCV;
-        private Autoit autoIt;
-        Field field;
-        internal bool whiteGame;
+        private readonly Writer console;
+        private readonly OpenCV openCV;
+        private readonly Autoit autoIt;
+        readonly Field field;
+        internal bool whitefigure;
         internal Overlay overlay;
 
         public ChessBoard(Writer console, OpenCV openCV, Autoit autoIt)
@@ -25,26 +25,26 @@ namespace ChessHelper
             this.console = console;
             this.openCV = openCV;
             this.autoIt = autoIt;
-            field = new Field(75,1,70,40,60,600);   //размеры поля для тренировки
-           // field = new Field(66,1,142,34,54,528); //onlanie
+            //field = new Field(75,1,70,40,60,600);   //размеры поля для тренировки
+            field = new Field(66,1,142,34,54,528); //onlanie
             
             overlay = new Overlay(field.Width, field.Width);
         }
 
-        internal void UpdateMyFigureColor()
+        internal void GetMyFigureColor()
         {
             var col = autoIt.GetPixelColor(field.offsetX + field.cellFigureOffsetX, field.offsetY + field.cellFigureOffsetY);
             if (col == 16316664 || col == 5657426)
             {
                 if (col == 16316664)
                 {
-                    whiteGame = false;
+                    whitefigure = false;
                     console.WriteLine("Игра за черных.");
                 }
                 else
                 {
                     console.WriteLine("Игра за белых.");
-                    whiteGame = true;
+                    whitefigure = true;
                 }
             }
             else
@@ -59,12 +59,12 @@ namespace ChessHelper
             overlay.Load(p);
         }
 
-        internal void DrawBestMove(string bestMove)
+        internal void DrawBestMove(string bestMove,string color = "blue")
         {
-            int i1 = GetColumn(bestMove[0], whiteGame);
-            int j1 = GetRow(bestMove[1], whiteGame);
-            int i2 = GetColumn(bestMove[2], whiteGame);
-            int j2 = GetRow(bestMove[3], whiteGame);
+            int i1 = GetColumn(bestMove[0], whitefigure);
+            int j1 = GetRow(bestMove[1], whitefigure);
+            int i2 = GetColumn(bestMove[2], whitefigure);
+            int j2 = GetRow(bestMove[3], whitefigure);
 
             if (i1 == -1|| i2 == -1 || j1 == -1 || j2 == -1)
             {
@@ -73,8 +73,24 @@ namespace ChessHelper
             }
 
             overlay.ClearElements();
-            overlay.DrawRect(i1 * field.cellWidth, j1 * field.cellWidth, field.cellWidth, field.cellWidth);
-            overlay.DrawRect(i2 * field.cellWidth, j2 * field.cellWidth, field.cellWidth, field.cellWidth);
+            switch (color)
+            {
+                case "blue":
+                    overlay.DrawRect(i1 * field.cellWidth, j1 * field.cellWidth, field.cellWidth, field.cellWidth);
+                    overlay.DrawRect(i2 * field.cellWidth, j2 * field.cellWidth, field.cellWidth, field.cellWidth);
+                    break;
+
+                case "red":
+                    overlay.DrawRedRect(i1 * field.cellWidth, j1 * field.cellWidth, field.cellWidth, field.cellWidth);
+                    overlay.DrawRedRect(i2 * field.cellWidth, j2 * field.cellWidth, field.cellWidth, field.cellWidth);
+                    break;
+
+                default:
+                    overlay.DrawRect(i1 * field.cellWidth, j1 * field.cellWidth, field.cellWidth, field.cellWidth);
+                    overlay.DrawRect(i2 * field.cellWidth, j2 * field.cellWidth, field.cellWidth, field.cellWidth);
+                    break;
+
+            }
             overlay.UpdateFrame();
         }
 
@@ -174,13 +190,13 @@ namespace ChessHelper
                             var colorCellCenter = autoIt.GetPixelColor(i * field.cellWidth + field.offsetX + field.cellFigureOffsetX, j * field.cellWidth + field.offsetY + field.cellFigureOffsetY);
                             if (colorCellCenter == 16316664 || colorCellCenter == 5657426)    //Если стоит фигура на клетке
                             {
-                                endMovePos = String.Format(GetCharCoord(i, j, whiteGame));
+                                endMovePos = String.Format(GetCharCoord(i, j, whitefigure));
                             }
                             else
                             {
                                 if (startMovePos == null)
                                 {
-                                    startMovePos = String.Format(GetCharCoord(i, j, whiteGame));
+                                    startMovePos = String.Format(GetCharCoord(i, j, whitefigure));
                                 }
                                 else                                                //Если две пустых желтых клетки
                                 {

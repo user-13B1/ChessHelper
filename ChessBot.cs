@@ -13,112 +13,73 @@ namespace ChessHelper
     {
         internal readonly Autoit autoIt;
         internal readonly Writer console;
-        int depth;
         internal readonly OpenCV openCV;
         internal ChessBoard chessBoard;
-        private List<string> movesHystory;
-        IStockfish stockfish;
+        private readonly List<string> movesHystory;
+        readonly IStockfish stockfish;
+        int depth;
+        bool isMyNextMove;
+        bool isWhiteNextMove;
+
         public ChessBot(Writer console)
         {
+            isWhiteNextMove = true;
             this.console = console;
             autoIt = new Autoit(console, "LDPlayer-1");
-            openCV = new OpenCV(console, autoIt);
+            openCV = new OpenCV(console);
             chessBoard = new ChessBoard(console,openCV, autoIt);
             movesHystory = new List<string>();
-           // Stockfish.NET.Models.Settings setting = new Stockfish.NET.Models.Settings();
-            stockfish = new Stockfish.NET.Stockfish(@"stockfish.exe", depth: 20);
-            stockfish.SkillLevel = 20;
-            depth = 10;
+            depth = 15;
+            stockfish = new Stockfish.NET.Stockfish(@"stockfish.exe", depth: depth)
+            {
+                SkillLevel = 20
+            };
+         
         }
 
     
         internal void StartWork()
         {
             chessBoard.OverlayLoad();
-            chessBoard.UpdateMyFigureColor();
+            chessBoard.GetMyFigureColor();
+            isMyNextMove = chessBoard.whitefigure;
+
             Task.Run(() => UpdateBoard());
-            UpdateFastMove();
+            Task.Run(() => UpdateNextMove());
         }
 
-        
-        private void UpdateFastMove()
-        {
-            stockfish.Depth = depth;
-            string fastrMove = stockfish.GetBestMove();
-            if (stockfish.IsMoveCorrect(fastrMove))
-            {
-                chessBoard.DrawBestMove(fastrMove);
-                console.WriteLine($"FastrMove {fastrMove}");
-            }
-            else
-                console.WriteLine($"Некорректный ход {fastrMove}");
 
-        }
-
-       
-
-        internal void SetDepthMoves(int value)
-        {
-            if (value > 30 || value < 1)
-                depth = 10;
-            else
-                depth = value;
-            console.WriteLine($"Глубина простчета ходов {depth}");
-        }
 
         private void UpdateBoard()
         {
             string currMove_1;
             string currMove_2;
-            bool flipflop = chessBoard.whiteGame;
 
             while (true)
             {
                 currMove_1 = chessBoard.UpdateMoveHystory();
-                Thread.Sleep(50);
+                Thread.Sleep(30);
                 currMove_2 = chessBoard.UpdateMoveHystory();
 
                 if (currMove_1 != currMove_2 || currMove_1 == null)
                     continue;
 
-                if (movesHystory.Count == 0 && stockfish.IsMoveCorrect(currMove_1))         //First move
+                if ((movesHystory.Count == 0 || currMove_1 != movesHystory[^1]) && stockfish.IsMoveCorrect(currMove_1))
                 {
-                    console.WriteLine($"First move: {currMove_1}");
-                    movesHystory.Add(currMove_1);
-                    stockfish.SetPosition(movesHystory.ToArray());
-                    UpdateFastMove();
+                    SetMove(currMove_1);
                     continue;
                 }
 
-                if (currMove_1 != movesHystory[^1]  && stockfish.IsMoveCorrect(currMove_1))
-                {
-                    movesHystory.Add(currMove_1);
-                    console.WriteLine($"Move: {currMove_1}");
-                    stockfish.SetPosition(movesHystory.ToArray());
-                    if(flipflop) 
-                        UpdateFastMove();
-                    flipflop = !flipflop;
-                    continue;
-                }
-
-
-
-                if (!stockfish.IsMoveCorrect(currMove_1) && currMove_1 != movesHystory[movesHystory.Count - 1])
+                if (!stockfish.IsMoveCorrect(currMove_1) && currMove_1 != movesHystory[^1])
                 {
                     currMove_1 += "q";
                     if (currMove_1 == movesHystory[^1])
-                    {
                         continue;
-                    }
 
                     if (stockfish.IsMoveCorrect(currMove_1))
                     {
-                        console.WriteLine($"Дамки");
-                        movesHystory.Add(currMove_1);
-                        stockfish.SetPosition(movesHystory.ToArray());
-                        if (flipflop)
-                            UpdateFastMove();
-                        flipflop = !flipflop;
+                        console.WriteLine($"В дамки!");
+                        SetMove(currMove_1);
                         continue;
                     }
 
@@ -126,11 +87,59 @@ namespace ChessHelper
                     return;
                 }
 
-
             }
         }
 
+        void SetMove(string move)
+        {
+            PrintMove(move);
 
+            movesHystory.Add(move); 
+            stockfish.SetPosition(movesHystory.ToArray());
+
+            if (!isMyNextMove)
+            {
+                UpdateNextMove();
+            }
+            else
+                chessBoard.overlay.ClearFrame();
+            
+            isMyNextMove = !isMyNextMove;
+        }
+
+        private void PrintMove(string move)
+        {
+            if (isWhiteNextMove)
+                console.WriteLine($"Ход белых:  {move}");
+            else
+                console.WriteLine($"Ход черных: {move}");
+            isWhiteNextMove = !isWhiteNextMove;
+        }
+
+        private void UpdateNextMove()
+        {
+            stockfish.Depth = depth;
+
+            string moveFast = stockfish.GetBestMoveTime(100);
+            chessBoard.DrawBestMove(moveFast, "red");
+
+            string move = stockfish.GetBestMove();
+            if (stockfish.IsMoveCorrect(move))
+            {
+                chessBoard.DrawBestMove(move, "blue");
+            }
+            else
+                console.WriteLine($"Некорректный ход {move}");
+        }
+
+        internal void SetDepthMoves(int value)
+        {
+            if (value > 30 || value < 1)
+                depth = 12;
+            else
+                depth = value;
+            console.WriteLine($"Глубина простчета ходов {depth}");
+        }
 
     }
 }

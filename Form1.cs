@@ -19,43 +19,38 @@ using Point = OpenCvSharp.Point;
 
 namespace ChessHelper
 {
-    public partial class Form1 : Form
+    public partial class ChessHelp : Form
     {
         internal readonly Writer console;
         ChessBot bot;
-        public Form1()
+        public ChessHelp()
         {
             InitializeComponent();
             console = new Writer(new object(), this, ConsoleBox);
+            textBoxDepth.Text = trackBar1.Value.ToString();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-           bot = new ChessBot(console);
-        }
+        private void Form1_Load(object sender, EventArgs e) => bot = new ChessBot(console);
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-           
-        }
+        private void ButtonStart_Click(object sender, EventArgs e) => bot.StartWork();
 
-        private void ButtonStart_Click(object sender, EventArgs e)
+        private void TextBoxDepth_TextChanged(object sender, EventArgs e)
         {
-            bot.StartWork();
-        }
-
-        private void textBoxDepth_TextChanged(object sender, EventArgs e)
-        {
-            int value = 10;
             if (!Int32.TryParse(textBoxDepth.Text, out _))
                 textBoxDepth.Text = 10.ToString();
             else
             {
-                value = Int32.Parse(textBoxDepth.Text);
-                bot.SetDepthMoves(value);
+                int value = Int32.Parse(textBoxDepth.Text);
+               // bot.SetDepthMoves(value);
             }
-            
         }
+
+        private void trackBar1_Scroll(object sender, EventArgs e)
+        {
+            textBoxDepth.Text = trackBar1.Value.ToString();
+            bot.SetDepthMoves(trackBar1.Value);
+        }
+
 
     }
 }
