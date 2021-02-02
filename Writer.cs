@@ -31,7 +31,7 @@ namespace ChessHelper
             }
         }
 
-        public void WriteLine(object textObj, bool log = true)
+        public void WriteLine(object textObj, bool log = false)
         {
             if (form != null)
             {

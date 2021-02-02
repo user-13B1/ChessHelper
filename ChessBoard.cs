@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Point = OpenCvSharp.Point;
 using System.Drawing;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -25,8 +24,8 @@ namespace ChessHelper
             this.console = console;
             this.openCV = openCV;
             this.autoIt = autoIt;
-            //field = new Field(75,1,70,40,60,600);   //размеры поля для тренировки
-            field = new Field(66,1,142,34,54,528); //onlanie
+            //field = new Field(75,1,70,40,60,600);   //    размеры поля для тренировки
+            field = new Field(66,1,142,34,54,528);    //   online
             
             overlay = new Overlay(field.Width, field.Width);
         }

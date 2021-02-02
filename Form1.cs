@@ -14,7 +14,7 @@ using SharpDX.Direct2D1;
 using SharpDX.Mathematics.Interop;
 using AutoItX3Lib;
 using System.Globalization;
-using Point = OpenCvSharp.Point;
+
 
 
 namespace ChessHelper

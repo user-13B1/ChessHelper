@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using AutoItX3Lib;
 using System.Threading;
 using System.Globalization;
-using Point = OpenCvSharp.Point;
 using System.Windows.Forms;
 
 namespace ChessHelper
