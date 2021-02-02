@@ -41,7 +41,6 @@ namespace ChessHelper
                     Console.WriteLine(textObj);
             }
 
-            //Запись сообщения в лог файл
             if (log)
             {
                 string textStr = String.Format("{0:F}  ", DateTime.Now) + String.Format($"{textObj}");

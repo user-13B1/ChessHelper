@@ -18,7 +18,6 @@ namespace ChessHelper
         private readonly string appName;
         internal Rectangle window;
 
-
         public Autoit(Writer console, string appName)
         {
             this.console = console;
@@ -61,8 +60,8 @@ namespace ChessHelper
 
             au3.WinSetState(appName, "", 1);
             au3.WinActivate(appName);
-             // au3.WinSetOnTop(appName, "", 1);
-
+           
+            // au3.WinSetOnTop(appName, "", 1);
             //if (au3.WinMove(appName, "", 2000, 10, 1322, 756) != 1)
             //{
             //    console.WriteLine("Error. Window not founded");
@@ -86,13 +85,11 @@ namespace ChessHelper
 
         internal System.Drawing.Point GetPosWindow()
         {
-           // UpdateWindowPos();
             return new System.Drawing.Point(window.X, window.Y);
         }
 
         internal System.Drawing.Point GetPosField()
         {
-           // UpdateWindowPos();
             return new System.Drawing.Point(window.X, window.Y);
         }
 

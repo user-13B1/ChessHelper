@@ -48,8 +48,6 @@ namespace ChessHelper
             Task.Run(() => UpdateNextMove());
         }
 
-
-
         private void UpdateBoard()
         {
             string currMove_1;

@@ -124,7 +124,6 @@ namespace ChessHelper
         internal void DrawRedRect(int x, int y, int width, int height) => rectsRed.Add(new Rectangle(x, y, width, height));
 
         internal void DrawText(string s, int x, int y) => texts.Add(new TextOverlay(s, new Point(x, y)));
-        
 
         struct TextOverlay
         {
@@ -137,7 +136,6 @@ namespace ChessHelper
                 this.pos = pos;
             }
         }
-
 
     }
 }
