@@ -42,7 +42,6 @@ namespace ChessHelper
             chessBoard.OverlayLoad(VsPc);
             chessBoard.GetMyFigureColor();
             isMyNextMove = chessBoard.whitefigure;
-         
             Task.Run(() => UpdateBoard());
             Task.Run(() => UpdateNextMove());
         }
