@@ -17,7 +17,7 @@ namespace ChessHelper
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new ChessHelp());
+            Application.Run(new ChessHelper());
         }
     }
 }

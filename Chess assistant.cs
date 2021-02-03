@@ -19,11 +19,11 @@ using System.Globalization;
 
 namespace ChessHelper
 {
-    public partial class ChessHelp : Form
+    public partial class ChessHelper : Form
     {
         internal readonly Writer console;
         ChessBot bot;
-        public ChessHelp()
+        public ChessHelper()
         {
             InitializeComponent();
             console = new Writer(new object(), this, ConsoleBox);
@@ -32,7 +32,11 @@ namespace ChessHelper
 
         private void Form1_Load(object sender, EventArgs e) => bot = new ChessBot(console);
 
-        private void ButtonStart_Click(object sender, EventArgs e) => bot.StartWork();
+        private void ButtonStart_Click(object sender, EventArgs e)
+        {
+            checkBoxVsPc.Enabled = false;
+            bot.StartWork(checkBoxVsPc.Checked);
+        }
 
         private void TextBoxDepth_TextChanged(object sender, EventArgs e)
         {
@@ -41,7 +45,6 @@ namespace ChessHelper
             else
             {
                 int value = Int32.Parse(textBoxDepth.Text);
-               // bot.SetDepthMoves(value);
             }
         }
 
@@ -51,6 +54,9 @@ namespace ChessHelper
             bot.SetDepthMoves(trackBar1.Value);
         }
 
-
+        private void checkBoxFastMove_CheckedChanged(object sender, EventArgs e)
+        {
+            bot.SetFastMove(checkBoxFastMove.Checked);
+        }
     }
 }

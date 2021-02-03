@@ -7,7 +7,7 @@ namespace ChessHelper
         private readonly Writer console;
         private readonly OpenCV openCV;
         private readonly Autoit autoIt;
-        readonly Field field;
+        private Field field;
         internal bool whitefigure;
         internal Overlay overlay;
 
@@ -16,10 +16,8 @@ namespace ChessHelper
             this.console = console;
             this.openCV = openCV;
             this.autoIt = autoIt;
-            //field = new Field(75,1,70,40,60,600);   //    размеры поля для тренировки
-            field = new Field(66,1,142,34,54,528);    //   online
+            field = new Field(66,1,142,34,54,528); 
             
-            overlay = new Overlay(field.Width, field.Width);
         }
 
         internal void GetMyFigureColor()
@@ -30,20 +28,24 @@ namespace ChessHelper
                 if (col == 16316664)
                 {
                     whitefigure = false;
-                    console.WriteLine("Игра за черных.");
+                    console.WriteLine("Playing for black figure.");
                 }
                 else
                 {
-                    console.WriteLine("Игра за белых.");
+                    console.WriteLine("Playing for white figure.");
                     whitefigure = true;
                 }
             }
             else
-                console.WriteLine("Ошибка определения цвета игровых фигур.");
+                console.WriteLine("Error update figure color.");
         }
 
-        internal void OverlayLoad()
+        internal void OverlayLoad(bool VsPc)
         {
+            if(VsPc)
+                field = new Field(75,1,70,40,60,600);   // размеры поля для тренировки
+
+            overlay = new Overlay(field.Width, field.Width);
             System.Drawing.Point p = autoIt.GetPosField();
             p.X += field.offsetX;
             p.Y += field.offsetY;
@@ -59,7 +61,7 @@ namespace ChessHelper
 
             if (i1 == -1|| i2 == -1 || j1 == -1 || j2 == -1)
             {
-                console.WriteLine("Ошибка координат доски");
+                console.WriteLine("Error. Wrong position.");
                 return;
             }
 
@@ -152,11 +154,12 @@ namespace ChessHelper
 
         internal string UpdateMoveHystory()
         {
+           
             int errorCellColor = 0;
             string startMovePos = null;
             string endMovePos = null;
             int[][] colorCells = openCV.ScanColor(field, autoIt.GetPosWindow());
-
+           
             for (int j = 0; j < 8; j++)
             {
                 for (int i = 0; i < 8; i++)
@@ -169,7 +172,6 @@ namespace ChessHelper
             if (errorCellColor != 2)
                 return null;
            
-
             for (int j = 0; j < 8; j++)
             {
                 for (int i = 0; i < 8; i++)
@@ -205,7 +207,8 @@ namespace ChessHelper
 
             if (startMovePos == null || endMovePos == null)
                 return null;
-          
+
+           
             string lastwMove = startMovePos + endMovePos;
             return lastwMove;
         }

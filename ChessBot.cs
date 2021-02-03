@@ -20,7 +20,7 @@ namespace ChessHelper
         int depth;
         bool isMyNextMove;
         bool isWhiteNextMove;
-
+        bool fastMove;
         public ChessBot(Writer console)
         {
             isWhiteNextMove = true;
@@ -34,16 +34,15 @@ namespace ChessHelper
             {
                 SkillLevel = 20
             };
-         
         }
 
     
-        internal void StartWork()
+        internal void StartWork(bool VsPc)
         {
-            chessBoard.OverlayLoad();
+            chessBoard.OverlayLoad(VsPc);
             chessBoard.GetMyFigureColor();
             isMyNextMove = chessBoard.whitefigure;
-
+         
             Task.Run(() => UpdateBoard());
             Task.Run(() => UpdateNextMove());
         }
@@ -55,19 +54,20 @@ namespace ChessHelper
 
             while (true)
             {
+                
                 currMove_1 = chessBoard.UpdateMoveHystory();
                 Thread.Sleep(30);
                 currMove_2 = chessBoard.UpdateMoveHystory();
-
+                
                 if (currMove_1 != currMove_2 || currMove_1 == null)
                     continue;
-
+                
                 if ((movesHystory.Count == 0 || currMove_1 != movesHystory[^1]) && stockfish.IsMoveCorrect(currMove_1))
                 {
                     SetMove(currMove_1);
                     continue;
                 }
-
+                
                 if (!stockfish.IsMoveCorrect(currMove_1) && currMove_1 != movesHystory[^1])
                 {
                     currMove_1 += "q";
@@ -76,16 +76,21 @@ namespace ChessHelper
 
                     if (stockfish.IsMoveCorrect(currMove_1))
                     {
-                        console.WriteLine($"В дамки!");
+                        console.WriteLine($"In the queens!");
                         SetMove(currMove_1);
                         continue;
                     }
 
-                    console.WriteLine($"СтокФиш - ход некорректный. {currMove_1}");
+                    console.WriteLine($"StockFish - wrong move. {currMove_1}");
                     return;
                 }
 
             }
+        }
+
+        internal void SetFastMove(bool @checked)
+        {
+            fastMove = @checked;
         }
 
         void SetMove(string move)
@@ -108,9 +113,9 @@ namespace ChessHelper
         private void PrintMove(string move)
         {
             if (isWhiteNextMove)
-                console.WriteLine($"Ход белых:  {move}");
+                console.WriteLine($"White move:  {move}");
             else
-                console.WriteLine($"Ход черных: {move}");
+                console.WriteLine($"Black move: {move}");
             isWhiteNextMove = !isWhiteNextMove;
         }
 
@@ -118,8 +123,11 @@ namespace ChessHelper
         {
             stockfish.Depth = depth;
 
-            string moveFast = stockfish.GetBestMoveTime(100);
-            chessBoard.DrawBestMove(moveFast, "red");
+            if (fastMove)
+            {
+                string moveFast = stockfish.GetBestMoveTime(100);
+                chessBoard.DrawBestMove(moveFast, "red");
+            }
 
             string move = stockfish.GetBestMove();
             if (stockfish.IsMoveCorrect(move))
@@ -127,7 +135,7 @@ namespace ChessHelper
                 chessBoard.DrawBestMove(move, "blue");
             }
             else
-                console.WriteLine($"Некорректный ход {move}");
+                console.WriteLine($"Wrong move {move}");
         }
 
         internal void SetDepthMoves(int value)
@@ -136,7 +144,6 @@ namespace ChessHelper
                 depth = 12;
             else
                 depth = value;
-            console.WriteLine($"Глубина простчета ходов {depth}");
         }
 
     }

@@ -14,20 +14,18 @@ namespace ChessHelper
             console.WriteLine("OpenCV loaded.");
         }
 
-
         internal int[][] ScanColor(Field field, System.Drawing.Point p)
         {
+           
             Color RgbColor;
             int[][] colorCells = new int[8][];
             for (int j = 0; j < 8; j++)
                 colorCells[j] = new int[8];
-
             System.Drawing.Size fieldSize = new System.Drawing.Size(field.Width, field.Width);
             using Bitmap fieldImage = new Bitmap(field.Width, field.Width, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
             using Graphics fieldGraph = Graphics.FromImage(fieldImage);
             fieldGraph.CopyFromScreen(p.X + field.offsetX, p.Y + field.offsetY, 0, 0, fieldSize);
             using Mat gameScreen = OpenCvSharp.Extensions.BitmapConverter.ToMat(fieldImage);
-         
             for (int j = 0; j < 8; j++)
             {
                 for (int i = 0; i < 8; i++)
@@ -39,7 +37,7 @@ namespace ChessHelper
                     colorCells[j][i] = iColor;
                 }
             }
-
+            
             return colorCells;
         }
     }

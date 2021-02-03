@@ -27,7 +27,7 @@ namespace ChessHelper
             if (form != null && textBox != null)
             {
                 _writer = new TextBoxStreamWriter(textBox);
-                Console.SetOut(_writer);   // Перенаправляем выходной поток консоли   
+                Console.SetOut(_writer);  
             }
         }
 

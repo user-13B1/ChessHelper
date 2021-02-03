@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <PackageReference Include="OpenCvSharp4" Version="4.5.1.20210123" />
+    <PackageReference Include="OpenCvSharp4.Windows" Version="4.5.1.20210123" />
     <PackageReference Include="SharpDX" Version="4.2.0" />
     <PackageReference Include="SharpDX.Desktop" Version="4.2.0" />
     <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0" />
