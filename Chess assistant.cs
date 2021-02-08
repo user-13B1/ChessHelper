@@ -34,8 +34,16 @@ namespace ChessHelper
 
         private void ButtonStart_Click(object sender, EventArgs e)
         {
-            checkBoxVsPc.Enabled = false;
-            bot.StartWork(checkBoxVsPc.Checked);
+            if (ButtonStart.Text != "NewGame")
+            {
+                checkBoxVsPc.Enabled = false;
+                bot.StartWork(checkBoxVsPc.Checked);
+                ButtonStart.Text = "NewGame";
+            }
+            else
+            {
+                bot.NewGame();
+            }
         }
 
         private void TextBoxDepth_TextChanged(object sender, EventArgs e)

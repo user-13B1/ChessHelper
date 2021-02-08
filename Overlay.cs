@@ -25,7 +25,7 @@ namespace ChessHelper
         private List<Rectangle> rectsBlue;
         private List<Rectangle> rectsRed;
         private List<TextOverlay> texts;
-       
+        static object locker = new object();
         public Overlay(int formWidth, int formHeight)
         {
            
@@ -62,15 +62,14 @@ namespace ChessHelper
 
             DWfactory = new SharpDX.DirectWrite.Factory();
             textFormat = new SharpDX.DirectWrite.TextFormat(DWfactory, "Calibri", 14);
-        }
-        
 
+           
+        }
 
         internal void Load(System.Drawing.Point sourcePos)
         {
             rectsBlue = new List<Rectangle>();
             rectsRed = new List<Rectangle>();
-
             texts = new List<TextOverlay>();
             overlayForm.Show();
             overlayForm.Location = sourcePos;
@@ -79,28 +78,33 @@ namespace ChessHelper
 
         public void UpdateFrame()
         {
-            renderTarget.BeginDraw();
-            renderTarget.Clear(new RawColor4(0, 0, 0, 0));
-
-            renderTarget.DrawRectangle(new RawRectangleF(0, 0, overlayForm.Width, overlayForm.Height), brushBlue);
-            
-            foreach (var rect in rectsBlue)
+            lock (locker)
             {
-                renderTarget.DrawRectangle(new RawRectangleF(rect.X - 1, rect.Y - 1, rect.Width + rect.X + 1, rect.Height + rect.Y + 1), brushBlue);
-            }
+                renderTarget.BeginDraw();
+                renderTarget.Clear(new RawColor4(0, 0, 0, 0));
 
-            foreach (var rect in rectsRed)
-            {
-                renderTarget.DrawRectangle(new RawRectangleF(rect.X - 1, rect.Y - 1, rect.Width + rect.X + 1, rect.Height + rect.Y + 1), brushRed);
-            }
+                renderTarget.DrawRectangle(new RawRectangleF(0, 0, overlayForm.Width, overlayForm.Height), brushBlue);
 
-            foreach (var text in texts)
-            {
-                renderTarget.DrawText(text.s, textFormat, new RawRectangleF(text.pos.X, text.pos.Y, text.pos.X + 120, text.pos.Y + 40), brushBlue);
-            }
+                foreach (var rect in rectsRed)
+                {
+                    renderTarget.DrawRectangle(new RawRectangleF(rect.X - 1, rect.Y - 1, rect.Width + rect.X + 1, rect.Height + rect.Y + 1), brushRed);
+                }
 
-            renderTarget.Flush();
-            renderTarget.EndDraw();
+                foreach (var rect in rectsBlue)
+                {
+                    renderTarget.DrawRectangle(new RawRectangleF(rect.X - 1, rect.Y - 1, rect.Width + rect.X + 1, rect.Height + rect.Y + 1), brushBlue);
+                }
+
+
+
+                foreach (var text in texts)
+                {
+                    renderTarget.DrawText(text.s, textFormat, new RawRectangleF(text.pos.X, text.pos.Y, text.pos.X + 120, text.pos.Y + 40), brushBlue);
+                }
+
+                renderTarget.Flush();
+                renderTarget.EndDraw();
+            }
         }
 
         public void ClearElements()

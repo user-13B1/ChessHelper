@@ -1,4 +1,12 @@
 ﻿using System;
+using System.Threading;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
+using System.Diagnostics;
+using Stockfish;
+using Stockfish.NET;
 
 namespace ChessHelper
 {
@@ -16,9 +24,11 @@ namespace ChessHelper
             this.console = console;
             this.openCV = openCV;
             this.autoIt = autoIt;
-            field = new Field(66,1,142,34,54,528); 
-            
+            field = new Field(66,1,142,34,54,528);
+           // field = new Field(75, 1, 70, 40, 60, 600);   // размеры поля для тренировки
+            overlay = new Overlay(field.Width, field.Width);
         }
+
 
         internal void GetMyFigureColor()
         {
@@ -43,14 +53,18 @@ namespace ChessHelper
         internal void OverlayLoad(bool VsPc)
         {
             if(VsPc)
-                field = new Field(75,1,70,40,60,600);   // размеры поля для тренировки
-
-            overlay = new Overlay(field.Width, field.Width);
+            {
+                field = new Field(75, 1, 70, 40, 60, 600);   // размеры поля для тренировки
+                overlay = new Overlay(field.Width, field.Width);
+            }     
+           
             System.Drawing.Point p = autoIt.GetPosField();
             p.X += field.offsetX;
             p.Y += field.offsetY;
             overlay.Load(p);
         }
+
+
 
         internal void DrawBestMove(string bestMove,string color = "blue")
         {
@@ -64,8 +78,7 @@ namespace ChessHelper
                 console.WriteLine("Error. Wrong position.");
                 return;
             }
-
-            overlay.ClearElements();
+            
             switch (color)
             {
                 case "blue":

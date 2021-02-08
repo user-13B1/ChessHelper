@@ -90,6 +90,7 @@ namespace ChessHelper
 
         internal System.Drawing.Point GetPosField()
         {
+            UpdateWindowPos();
             return new System.Drawing.Point(window.X, window.Y);
         }
 
