@@ -27,12 +27,10 @@ namespace ChessHelper
             {
                 au3 = new AutoItX3();
                 SetWindow();
-                console.WriteLine("AutoIt loaded.");
             }
             catch (Exception e)
             {
-                console.WriteLine("AutoItX3 Error!");
-                console.WriteLine($"IBotArm error = { e.Message}");
+                console.WriteLine( e.Message);
             }
             UpdateWindowPos();
         }

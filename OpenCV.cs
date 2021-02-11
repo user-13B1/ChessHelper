@@ -11,7 +11,6 @@ namespace ChessHelper
         public OpenCV(Writer console)
         {
             this.console = console;
-            console.WriteLine("OpenCV loaded.");
         }
 
         internal int[][] ScanColor(Field field, System.Drawing.Point p)

@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace ChessHelper
 {
-    class ChessBot
+    public class ChessBot
     {
        
         internal readonly Autoit autoIt;
@@ -18,6 +18,7 @@ namespace ChessHelper
         internal ChessBoard chessBoard;
         private readonly List<string> movesHystory;
         readonly IStockfish stockfish;
+        readonly IStockfish stockfishF;
         int depth;
         bool isMyNextMove;
         bool isWhiteNextMove;
@@ -32,10 +33,29 @@ namespace ChessHelper
            
             movesHystory = new List<string>();
             depth = 15;
-            stockfish = new Stockfish.NET.Stockfish(@"stockfish.exe");
+            stockfish = new Stockfish.NET.Stockfish(@"stockfish.exe")
+            {
+                SkillLevel = 20
+            };
+            stockfishF = new Stockfish.NET.Stockfish(@"stockfish.exe")
+            {
+                SkillLevel = 17,
+                Depth = 12
+            };
         }
 
-    
+        public ChessBot()
+        {
+            isWhiteNextMove = true;
+            movesHystory = new List<string>();
+            depth = 15;
+            stockfish = new Stockfish.NET.Stockfish(@"stockfish.exe")
+            {
+                SkillLevel = 20
+            };
+        }
+
+
         internal void StartWork(bool VsPc)
         {
             chessBoard.OverlayLoad(VsPc);
@@ -52,49 +72,6 @@ namespace ChessHelper
             movesHystory.Clear();
         }
 
-        private void UpdateBoardOld()
-        {
-            string currMove_1;
-            string currMove_2;
-
-            while (true)
-            {
-                currMove_1 = chessBoard.UpdateMoveHystory();
-                Thread.Sleep(30);
-                currMove_2 = chessBoard.UpdateMoveHystory();
-                
-                //Если фигуры в движение или игра не началась
-                if (currMove_1 != currMove_2 || currMove_1 == null)
-                    continue;
-                
-                //Если первый ход или новый ход
-                if ((movesHystory.Count == 0 || currMove_1 != movesHystory[^1]) && stockfish.IsMoveCorrect(currMove_1))
-                {
-                    SetMove(currMove_1);
-                    continue;
-                }
-                
-                
-                if (!stockfish.IsMoveCorrect(currMove_1) && currMove_1 != movesHystory[^1])
-                {
-                    currMove_1 += "q";
-                    if (currMove_1 == movesHystory[^1])
-                        continue;
-
-                    if (stockfish.IsMoveCorrect(currMove_1))
-                    {
-                        console.WriteLine($"In the queens!");
-                        SetMove(currMove_1);
-                        continue;
-                    }
-
-                    console.WriteLine($"StockFish - wrong move. {currMove_1}");
-                    return;
-                }
-
-            }
-        }
-
         private void UpdateBoard()
         {
             while (true)
@@ -105,6 +82,7 @@ namespace ChessHelper
                     SetMove(move);
                     if (isMyNextMove)
                     {
+                        Task.Run(() => FastMove());
                         UpdateNextMove();
                     }
                 }
@@ -122,9 +100,21 @@ namespace ChessHelper
             Thread.Sleep(20);
             currMove_2 = chessBoard.UpdateMoveHystory();
 
+            if(CheckMove(currMove_1, currMove_2))
+            {
+                move = currMove_1;
+                return true;
+            }
+            else
+                return false;
+        }
+
+        public bool CheckMove(string currMove_1, string currMove_2)
+        {
+           
             //Проверка повтора хода
             if (movesHystory.Count > 0 && currMove_1 == movesHystory[^1])
-                 return false;
+                return false;
 
             //Если фигуры в движение или игра не началась
             if (currMove_1 != currMove_2 || currMove_1 == null)
@@ -132,25 +122,22 @@ namespace ChessHelper
 
             //Если первый ход или новый ход
             if (stockfish.IsMoveCorrect(currMove_1))
-            {
-                move = currMove_1;
                 return true;
-            }
 
             //Проверка на дамки
             currMove_1 += "q";
-            
-            if (currMove_1 == movesHystory[^1])
+
+            if (movesHystory.Count > 0 && currMove_1 == movesHystory[^1])
                 return false;
 
             if (stockfish.IsMoveCorrect(currMove_1))
             {
                 console.WriteLine($"In the queens!");
-                move = currMove_1;
                 return true;
             }
 
-            console.WriteLine($"StockFish - wrong move. {currMove_1}");
+
+            console?.WriteLine($"StockFish - wrong move. {currMove_1}");
             return false;
         }
 
@@ -159,8 +146,10 @@ namespace ChessHelper
         void SetMove(string move)
         {
             PrintMove(move);
-            movesHystory.Add(move); 
-            stockfish.SetPosition(movesHystory.ToArray());
+            movesHystory.Add(move);
+            var moves = movesHystory.ToArray();
+            stockfish.SetPosition(moves);
+            stockfishF.SetPosition(moves);
             isMyNextMove = !isMyNextMove;
         }
 
@@ -175,19 +164,8 @@ namespace ChessHelper
 
         private void UpdateNextMove()
         {
-            string move;
-            if (fastMove)
-            {
-                stockfish.SkillLevel = 17;
-                stockfish.Depth = 14;
-                move = stockfish.GetBestMoveTime(140);
-                if (stockfish.IsMoveCorrect(move))
-                     chessBoard.DrawBestMove(move, "red");
-            }
-
-            stockfish.SkillLevel = 20;
             stockfish.Depth = depth;
-            move = stockfish.GetBestMove();
+            string move = stockfish.GetBestMove();
            
             if (stockfish.IsMoveCorrect(move))
             {
@@ -195,8 +173,18 @@ namespace ChessHelper
             }
             else
                 console.WriteLine($"Wrong move {move}");
-            
         }
+
+        void FastMove()
+        {
+            if (fastMove)
+            {
+                string move = stockfishF.GetBestMove();
+                if (stockfishF.IsMoveCorrect(move))
+                    chessBoard.DrawBestMove(move, "red");
+            }
+        }
+
 
 
         internal void SetDepthMoves(int value)
