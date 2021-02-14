@@ -28,7 +28,7 @@ namespace ChessHelper
             isWhiteNextMove = true;
             this.console = console;
             autoIt = new Autoit(console, "LDPlayer-1");
-            openCV = new OpenCV(console);
+            openCV = new OpenCV();
             chessBoard = new ChessBoard(console,openCV, autoIt);
            
             movesHystory = new List<string>();
@@ -42,6 +42,8 @@ namespace ChessHelper
                 SkillLevel = 17,
                 Depth = 12
             };
+
+            console.WriteLine("Loaded");
         }
 
         public ChessBot()
@@ -90,17 +92,16 @@ namespace ChessHelper
             }
         }
 
-
         private bool UpdateMove(out string move)
         {
             string currMove_1;
             string currMove_2;
             move = null;
             currMove_1 = chessBoard.UpdateMoveHystory();
-            Thread.Sleep(20);
+            Thread.Sleep(18);
             currMove_2 = chessBoard.UpdateMoveHystory();
 
-            if(CheckMove(currMove_1, currMove_2))
+            if(CheckMove(ref currMove_1, currMove_2))
             {
                 move = currMove_1;
                 return true;
@@ -109,37 +110,41 @@ namespace ChessHelper
                 return false;
         }
 
-        public bool CheckMove(string currMove_1, string currMove_2)
+        public bool CheckMove(ref string currMove_1, string currMove_2)
         {
-           
-            //Проверка повтора хода
-            if (movesHystory.Count > 0 && currMove_1 == movesHystory[^1])
-                return false;
-
             //Если фигуры в движение или игра не началась
             if (currMove_1 != currMove_2 || currMove_1 == null)
                 return false;
 
-            //Если первый ход или новый ход
+            if (CheckIsRepeatMove(currMove_1))
+                return false;
+
             if (stockfish.IsMoveCorrect(currMove_1))
                 return true;
 
-            //Проверка на дамки
+            //Проверка прохода в дамки
             currMove_1 += "q";
-
-            if (movesHystory.Count > 0 && currMove_1 == movesHystory[^1])
+            if (CheckIsRepeatMove(currMove_1))
                 return false;
 
             if (stockfish.IsMoveCorrect(currMove_1))
             {
-                console.WriteLine($"In the queens!");
+                console?.WriteLine($"In the queens!");
                 return true;
             }
-
 
             console?.WriteLine($"StockFish - wrong move. {currMove_1}");
             return false;
         }
+
+        private bool CheckIsRepeatMove(string currMove_1)
+        {
+            if (movesHystory.Count > 0 && currMove_1 == movesHystory[^1])
+                return true;
+
+            return false;
+        }
+
 
         internal void SetFastMove(bool @checked) => fastMove = @checked;
 
@@ -186,15 +191,12 @@ namespace ChessHelper
         }
 
 
-
         internal void SetDepthMoves(int value)
         {
-            
             if (value > 30 || value < 1)
                 depth = 12;
             else
                 depth = value;
-            
         }
 
     }

@@ -25,7 +25,7 @@ namespace ChessHelper
         private List<Rectangle> rectsBlue;
         private List<Rectangle> rectsRed;
         private List<TextOverlay> texts;
-        static object locker = new object();
+        static readonly object locker = new object();
         public Overlay(int formWidth, int formHeight)
         {
            
@@ -94,7 +94,6 @@ namespace ChessHelper
                 {
                     renderTarget.DrawRectangle(new RawRectangleF(rect.X - 1, rect.Y - 1, rect.Width + rect.X + 1, rect.Height + rect.Y + 1), brushBlue);
                 }
-
 
 
                 foreach (var text in texts)

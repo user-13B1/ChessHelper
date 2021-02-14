@@ -1,12 +1,4 @@
 ﻿using System;
-using System.Threading;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using System.Diagnostics;
-using Stockfish;
-using Stockfish.NET;
 
 namespace ChessHelper
 {
@@ -36,15 +28,9 @@ namespace ChessHelper
             if (col == 16316664 || col == 5657426)
             {
                 if (col == 16316664)
-                {
                     whitefigure = false;
-                    console.WriteLine("Playing for black figure.");
-                }
                 else
-                {
-                    console.WriteLine("Playing for white figure.");
                     whitefigure = true;
-                }
             }
             else
                 console.WriteLine("Error update figure color.");
@@ -167,20 +153,15 @@ namespace ChessHelper
 
         internal string UpdateMoveHystory()
         {
-           
             int errorCellColor = 0;
             string startMovePos = null;
             string endMovePos = null;
             int[][] colorCells = openCV.ScanColor(field, autoIt.GetPosWindow());
            
             for (int j = 0; j < 8; j++)
-            {
                 for (int i = 0; i < 8; i++)
-                {
                     if (colorCells[j][i] != 15658706 && colorCells[j][i] != 7771734)
                         errorCellColor++;
-                }
-            }
 
             if (errorCellColor != 2)
                 return null;
@@ -195,9 +176,7 @@ namespace ChessHelper
                         {
                             var colorCellCenter = autoIt.GetPixelColor(i * field.cellWidth + field.offsetX + field.cellFigureOffsetX, j * field.cellWidth + field.offsetY + field.cellFigureOffsetY);
                             if (colorCellCenter == 16316664 || colorCellCenter == 5657426)    //Если стоит фигура на клетке
-                            {
                                 endMovePos = String.Format(GetCharCoord(i, j, whitefigure));
-                            }
                             else
                             {
                                 if (startMovePos == null)
@@ -210,7 +189,6 @@ namespace ChessHelper
                                         return s;
                                 }
                             }
-
                         }
                         else
                             return null;
@@ -221,10 +199,10 @@ namespace ChessHelper
             if (startMovePos == null || endMovePos == null)
                 return null;
 
-           
             string lastwMove = startMovePos + endMovePos;
             return lastwMove;
         }
+
 
         private bool IsCastling(int[][] colorCells, out string s)
         {

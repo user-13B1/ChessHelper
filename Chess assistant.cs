@@ -52,17 +52,17 @@ namespace ChessHelper
                 textBoxDepth.Text = 10.ToString();
             else
             {
-                int value = Int32.Parse(textBoxDepth.Text);
+                int value = int.Parse(textBoxDepth.Text);
             }
         }
 
-        private void trackBar1_Scroll(object sender, EventArgs e)
+        private void TrackBar1_Scroll(object sender, EventArgs e)
         {
             textBoxDepth.Text = trackBar1.Value.ToString();
             bot.SetDepthMoves(trackBar1.Value);
         }
 
-        private void checkBoxFastMove_CheckedChanged(object sender, EventArgs e)
+        private void CheckBoxFastMove_CheckedChanged(object sender, EventArgs e)
         {
             bot.SetFastMove(checkBoxFastMove.Checked);
         }

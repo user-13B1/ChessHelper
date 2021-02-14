@@ -81,7 +81,7 @@ namespace ChessHelper
             this.trackBar1.Tag = "";
             this.trackBar1.TickStyle = System.Windows.Forms.TickStyle.TopLeft;
             this.trackBar1.Value = 12;
-            this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll);
+            this.trackBar1.Scroll += new System.EventHandler(this.TrackBar1_Scroll);
             // 
             // textBoxDepth
             // 
@@ -122,7 +122,7 @@ namespace ChessHelper
             this.checkBoxFastMove.TabIndex = 9;
             this.checkBoxFastMove.Text = "Fast move";
             this.checkBoxFastMove.UseVisualStyleBackColor = true;
-            this.checkBoxFastMove.CheckedChanged += new System.EventHandler(this.checkBoxFastMove_CheckedChanged);
+            this.checkBoxFastMove.CheckedChanged += new System.EventHandler(this.CheckBoxFastMove_CheckedChanged);
             // 
             // ChessHelper
             // 

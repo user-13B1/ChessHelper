@@ -30,7 +30,7 @@ namespace ChessHelper
             }
             catch (Exception e)
             {
-                console.WriteLine( e.Message);
+                console?.WriteLine( e.Message);
             }
             UpdateWindowPos();
         }
