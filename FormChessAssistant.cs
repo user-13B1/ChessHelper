@@ -15,35 +15,35 @@ using SharpDX.Mathematics.Interop;
 using AutoItX3Lib;
 using System.Globalization;
 
-
-
 namespace ChessHelper
 {
-    public partial class ChessHelper : Form
+    public partial class FormChessAssistant : Form
     {
         internal readonly Writer console;
-        ChessBot bot;
-        public ChessHelper()
+        GameController gameController;
+        public FormChessAssistant()
         {
             InitializeComponent();
             console = new Writer(new object(), this, ConsoleBox);
             textBoxDepth.Text = trackBar1.Value.ToString();
         }
 
-        private void Form1_Load(object sender, EventArgs e) => bot = new ChessBot(console);
+        private void Form_Load(object sender, EventArgs e)
+        {
+            gameController = new GameController(console);
+        }
 
         private void ButtonStart_Click(object sender, EventArgs e)
         {
-            if (ButtonStart.Text != "NewGame")
+            if (ButtonStart.Text == "Start")
             {
                 checkBoxVsPc.Enabled = false;
-                bot.StartWork(checkBoxVsPc.Checked);
-                ButtonStart.Text = "NewGame";
+                gameController.StartWork();
+                ButtonStart.Text = "Restart";
             }
             else
-            {
-                bot.NewGame();
-            }
+                gameController.Restart();
+            
         }
 
         private void TextBoxDepth_TextChanged(object sender, EventArgs e)
@@ -59,12 +59,8 @@ namespace ChessHelper
         private void TrackBar1_Scroll(object sender, EventArgs e)
         {
             textBoxDepth.Text = trackBar1.Value.ToString();
-            bot.SetDepthMoves(trackBar1.Value);
+            gameController.SetDepthMoves(trackBar1.Value);
         }
 
-        private void CheckBoxFastMove_CheckedChanged(object sender, EventArgs e)
-        {
-            bot.SetFastMove(checkBoxFastMove.Checked);
-        }
     }
 }

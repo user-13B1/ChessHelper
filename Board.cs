@@ -1,26 +1,48 @@
 ﻿using System;
+using System.Threading;
 
 namespace ChessHelper
 {
-    class ChessBoard
+    internal delegate void NotifyDelegate(string message);
+    class Board
     {
-        private readonly Writer console;
         private readonly OpenCV openCV;
-        private readonly Autoit autoIt;
+        internal readonly Autoit autoIt;
         private Field field;
         internal bool whitefigure;
-        internal Overlay overlay;
+        private Moves moves;
+        internal event NotifyDelegate Notify;
 
-        public ChessBoard(Writer console, OpenCV openCV, Autoit autoIt)
+        public Board(Moves moves, Field field)
         {
-            this.console = console;
-            this.openCV = openCV;
-            this.autoIt = autoIt;
-            field = new Field(66,1,142,34,54,528);
-           // field = new Field(75, 1, 70, 40, 60, 600);   // размеры поля для тренировки
-            overlay = new Overlay(field.Width, field.Width);
+            this.field = field;
+            this.moves = moves;
+            openCV = new OpenCV();
+            autoIt = new Autoit("LDPlayer-1", Notify);
         }
 
+
+        internal void Update()
+        {
+            string lastMove = string.Empty;
+            string currMove_1;
+            string currMove_2;
+            while (true)
+            {
+                currMove_1 = UpdateMoveHystory();
+                Thread.Sleep(18);
+                currMove_2 = UpdateMoveHystory();
+
+                if (currMove_1 != currMove_2 || currMove_1 == null)
+                    continue;
+             
+                if(currMove_1 == lastMove)
+                    continue;
+
+                lastMove = currMove_1;
+                moves.AddMoveToQueue(currMove_1);
+            }
+        }
 
         internal void GetMyFigureColor()
         {
@@ -28,63 +50,24 @@ namespace ChessHelper
             if (col == 16316664 || col == 5657426)
             {
                 if (col == 16316664)
+                {
+                    Notify("We play Black figure");
                     whitefigure = false;
+                    moves.IsPlayerNextMove = false;
+                }
                 else
+                {
+                    Notify("We play Whitefigure");
                     whitefigure = true;
+                    moves.IsPlayerNextMove = true;
+                }
             }
             else
-                console.WriteLine("Error update figure color.");
-        }
-
-        internal void OverlayLoad(bool VsPc)
-        {
-            if(VsPc)
-            {
-                field = new Field(75, 1, 70, 40, 60, 600);   // размеры поля для тренировки
-                overlay = new Overlay(field.Width, field.Width);
-            }     
-           
-            System.Drawing.Point p = autoIt.GetPosField();
-            p.X += field.offsetX;
-            p.Y += field.offsetY;
-            overlay.Load(p);
+                Notify("Error update figure color.");
         }
 
 
-
-        internal void DrawBestMove(string bestMove,string color = "blue")
-        {
-            int i1 = GetColumn(bestMove[0], whitefigure);
-            int j1 = GetRow(bestMove[1], whitefigure);
-            int i2 = GetColumn(bestMove[2], whitefigure);
-            int j2 = GetRow(bestMove[3], whitefigure);
-
-            if (i1 == -1|| i2 == -1 || j1 == -1 || j2 == -1)
-            {
-                console.WriteLine("Error. Wrong position.");
-                return;
-            }
-            
-            switch (color)
-            {
-                case "blue":
-                    overlay.DrawRect(i1 * field.cellWidth, j1 * field.cellWidth, field.cellWidth, field.cellWidth);
-                    overlay.DrawRect(i2 * field.cellWidth, j2 * field.cellWidth, field.cellWidth, field.cellWidth);
-                    break;
-
-                case "red":
-                    overlay.DrawRedRect(i1 * field.cellWidth, j1 * field.cellWidth, field.cellWidth, field.cellWidth);
-                    overlay.DrawRedRect(i2 * field.cellWidth, j2 * field.cellWidth, field.cellWidth, field.cellWidth);
-                    break;
-
-                default:
-                    overlay.DrawRect(i1 * field.cellWidth, j1 * field.cellWidth, field.cellWidth, field.cellWidth);
-                    overlay.DrawRect(i2 * field.cellWidth, j2 * field.cellWidth, field.cellWidth, field.cellWidth);
-                    break;
-
-            }
-            overlay.UpdateFrame();
-        }
+      
 
         string GetCharCoord(int i,int j, bool white) => (i,white) switch
         {
@@ -105,50 +88,6 @@ namespace ChessHelper
             (1, false) => "g" + (j + 1),
             (0, false) => "h" + (j + 1),
              _ => throw new NotImplementedException()
-        };
-
-        int GetColumn(char c, bool white) => (c, white) switch
-        {
-            ('a', true) => 0,
-            ('b', true) => 1,
-            ('c', true) => 2,
-            ('d', true) => 3,
-            ('e', true) => 4,
-            ('f', true) => 5,
-            ('g', true) => 6,
-            ('h', true) => 7,
-
-            ('a', false) => 7,
-            ('b', false) => 6,
-            ('c', false) => 5,
-            ('d', false) => 4,
-            ('e', false) => 3,
-            ('f', false) => 2,
-            ('g', false) => 1,
-            ('h', false) => 0,
-            _ => -1
-        };
-
-        int GetRow(char c, bool white) => (c, white) switch
-        {
-            ('1', true) => 7,
-            ('2', true) => 6,
-            ('3', true) => 5,
-            ('4', true) => 4,
-            ('5', true) => 3,
-            ('6', true) => 2,
-            ('7', true) => 1,
-            ('8', true) => 0,
-
-            ('1', false) => 0,
-            ('2', false) => 1,
-            ('3', false) => 2,
-            ('4', false) => 3,
-            ('5', false) => 4,
-            ('6', false) => 5,
-            ('7', false) => 6,
-            ('8', false) => 7,
-            _ => -1
         };
 
         internal string UpdateMoveHystory()
@@ -202,7 +141,6 @@ namespace ChessHelper
             string lastwMove = startMovePos + endMovePos;
             return lastwMove;
         }
-
 
         private bool IsCastling(int[][] colorCells, out string s)
         {

@@ -14,13 +14,13 @@ namespace ChessHelper
     class Autoit
     {
         internal readonly AutoItX3 au3;
-        private readonly Writer console;
         private readonly string appName;
         internal Rectangle window;
+        internal event NotifyDelegate Notify;
 
-        public Autoit(Writer console, string appName)
+        public Autoit(string appName, NotifyDelegate Notify)
         {
-            this.console = console;
+            this.Notify = Notify;
             this.appName = appName;
 
             try
@@ -30,7 +30,7 @@ namespace ChessHelper
             }
             catch (Exception e)
             {
-                console?.WriteLine( e.Message);
+                Notify( e.Message);
             }
             UpdateWindowPos();
         }
@@ -40,7 +40,7 @@ namespace ChessHelper
             au3.WinActivate(appName);
             if (au3.WinExists(appName) != 1)
             {
-                console.WriteLine("Game not loaded. Please load game.");
+                Notify("Game not loaded. Please load game.");
                 return false;
             }
 
@@ -52,7 +52,7 @@ namespace ChessHelper
         {
             if (au3.WinExists(appName) != 1)
             {
-                console.WriteLine("Game not loaded.Please load game.");
+                Notify("Game not loaded.Please load game.");
                 return false;
             }
 
@@ -68,13 +68,13 @@ namespace ChessHelper
 
             if (au3.WinGetPosHeight(appName) != 756)
             {
-                console.WriteLine("Window height not correct");
+                Notify("Window height not correct");
                 return false;
             }
 
             if (au3.WinGetPosWidth(appName) != 1322)
             {
-                console.WriteLine("Window width not correct");
+                Notify("Window width not correct");
                 return false;
             }
 

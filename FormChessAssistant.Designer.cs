@@ -1,7 +1,7 @@
 ﻿
 namespace ChessHelper
 {
-    partial class ChessHelper
+    partial class FormChessAssistant
     {
         /// <summary>
         ///  Required designer variable.
@@ -29,7 +29,7 @@ namespace ChessHelper
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ChessHelper));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormChessAssistant));
             this.ConsoleBox = new System.Windows.Forms.TextBox();
             this.ButtonStart = new System.Windows.Forms.Button();
             this.LabelDepth = new System.Windows.Forms.Label();
@@ -37,7 +37,6 @@ namespace ChessHelper
             this.textBoxDepth = new System.Windows.Forms.TextBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.checkBoxVsPc = new System.Windows.Forms.CheckBox();
-            this.checkBoxFastMove = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -113,23 +112,11 @@ namespace ChessHelper
             this.checkBoxVsPc.Text = "Vs PC";
             this.checkBoxVsPc.UseVisualStyleBackColor = true;
             // 
-            // checkBoxFastMove
-            // 
-            this.checkBoxFastMove.AutoSize = true;
-            this.checkBoxFastMove.Location = new System.Drawing.Point(12, 215);
-            this.checkBoxFastMove.Name = "checkBoxFastMove";
-            this.checkBoxFastMove.Size = new System.Drawing.Size(80, 19);
-            this.checkBoxFastMove.TabIndex = 9;
-            this.checkBoxFastMove.Text = "Fast move";
-            this.checkBoxFastMove.UseVisualStyleBackColor = true;
-            this.checkBoxFastMove.CheckedChanged += new System.EventHandler(this.CheckBoxFastMove_CheckedChanged);
-            // 
             // ChessHelper
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(204, 248);
-            this.Controls.Add(this.checkBoxFastMove);
             this.Controls.Add(this.checkBoxVsPc);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.ButtonStart);
@@ -139,7 +126,7 @@ namespace ChessHelper
             this.MaximizeBox = false;
             this.Name = "ChessHelper";
             this.Text = "Rook move!";
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Load += new System.EventHandler(this.Form_Load);
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
@@ -156,7 +143,6 @@ namespace ChessHelper
         private System.Windows.Forms.TextBox textBoxDepth;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.CheckBox checkBoxVsPc;
-        private System.Windows.Forms.CheckBox checkBoxFastMove;
     }
 }
 

@@ -17,6 +17,7 @@ namespace ChessHelper
         readonly RenderForm overlayForm;
         readonly SolidColorBrush brushBlue;
         readonly SolidColorBrush brushRed;
+        readonly SolidColorBrush brushGreen;
         readonly SharpDX.DirectWrite.Factory DWfactory;
         readonly SharpDX.DirectWrite.TextFormat textFormat;
         #endregion
@@ -24,6 +25,7 @@ namespace ChessHelper
       
         private List<Rectangle> rectsBlue;
         private List<Rectangle> rectsRed;
+        private List<Rectangle> rectsGreen;
         private List<TextOverlay> texts;
         static readonly object locker = new object();
         public Overlay(int formWidth, int formHeight)
@@ -59,6 +61,7 @@ namespace ChessHelper
 
             brushBlue = new SolidColorBrush(renderTarget, new RawColor4(0, 0, 1, 1));
             brushRed = new SolidColorBrush(renderTarget, new RawColor4(1, 0, 0, 1));
+            brushGreen = new SolidColorBrush(renderTarget, new RawColor4(0, 1, 0, 1));
 
             DWfactory = new SharpDX.DirectWrite.Factory();
             textFormat = new SharpDX.DirectWrite.TextFormat(DWfactory, "Calibri", 14);
@@ -70,6 +73,7 @@ namespace ChessHelper
         {
             rectsBlue = new List<Rectangle>();
             rectsRed = new List<Rectangle>();
+            rectsGreen = new List<Rectangle>();
             texts = new List<TextOverlay>();
             overlayForm.Show();
             overlayForm.Location = sourcePos;
@@ -85,6 +89,11 @@ namespace ChessHelper
 
                 renderTarget.DrawRectangle(new RawRectangleF(0, 0, overlayForm.Width, overlayForm.Height), brushBlue);
 
+                foreach (var rect in rectsGreen)
+                {
+                    renderTarget.DrawRectangle(new RawRectangleF(rect.X - 1, rect.Y - 1, rect.Width + rect.X + 1, rect.Height + rect.Y + 1), brushGreen);
+                }
+
                 foreach (var rect in rectsRed)
                 {
                     renderTarget.DrawRectangle(new RawRectangleF(rect.X - 1, rect.Y - 1, rect.Width + rect.X + 1, rect.Height + rect.Y + 1), brushRed);
@@ -95,6 +104,7 @@ namespace ChessHelper
                     renderTarget.DrawRectangle(new RawRectangleF(rect.X - 1, rect.Y - 1, rect.Width + rect.X + 1, rect.Height + rect.Y + 1), brushBlue);
                 }
 
+               
 
                 foreach (var text in texts)
                 {
@@ -110,6 +120,7 @@ namespace ChessHelper
         {
             rectsRed.Clear();
             rectsBlue.Clear();
+            rectsGreen.Clear();
             texts.Clear();
            
         }
@@ -118,13 +129,16 @@ namespace ChessHelper
         {
             rectsRed.Clear();
             rectsBlue.Clear();
+            rectsGreen.Clear();
             texts.Clear();
             UpdateFrame();
         }
 
-        internal void DrawRect(int x, int y, int width, int height)=> rectsBlue.Add(new Rectangle(x, y, width, height));
+        internal void DrawBlueRect(int x, int y, int width, int height)=> rectsBlue.Add(new Rectangle(x, y, width, height));
 
         internal void DrawRedRect(int x, int y, int width, int height) => rectsRed.Add(new Rectangle(x, y, width, height));
+
+        internal void DrawGreenRect(int x, int y, int width, int height) => rectsGreen.Add(new Rectangle(x, y, width, height));
 
         internal void DrawText(string s, int x, int y) => texts.Add(new TextOverlay(s, new Point(x, y)));
 
