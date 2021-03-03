@@ -12,7 +12,7 @@ namespace ChessHelper
         internal bool whitefigure;
         private Moves moves;
         internal event NotifyDelegate Notify;
-
+        string lastMove;
         public Board(Moves moves, Field field)
         {
             this.field = field;
@@ -24,7 +24,7 @@ namespace ChessHelper
 
         internal void Update()
         {
-            string lastMove = string.Empty;
+            lastMove = string.Empty;
             string currMove_1;
             string currMove_2;
             while (true)
@@ -42,6 +42,12 @@ namespace ChessHelper
                 lastMove = currMove_1;
                 moves.AddMoveToQueue(currMove_1);
             }
+        }
+
+        internal void Restart()
+        {
+            lastMove = string.Empty;
+            GetMyFigureColor();
         }
 
         internal void GetMyFigureColor()
@@ -66,9 +72,6 @@ namespace ChessHelper
                 Notify("Error update figure color.");
         }
 
-
-      
-
         string GetCharCoord(int i,int j, bool white) => (i,white) switch
         {
             (0, true) => "a" + (8 - j),
@@ -89,7 +92,6 @@ namespace ChessHelper
             (0, false) => "h" + (j + 1),
              _ => throw new NotImplementedException()
         };
-
         internal string UpdateMoveHystory()
         {
             int errorCellColor = 0;
@@ -141,7 +143,6 @@ namespace ChessHelper
             string lastwMove = startMovePos + endMovePos;
             return lastwMove;
         }
-
         private bool IsCastling(int[][] colorCells, out string s)
         {
             //green 12307269

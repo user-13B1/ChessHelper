@@ -34,12 +34,21 @@ namespace ChessHelper
                             DrawBestMove(movesArr[0], "blue");
                         if (movesArr[1] != null)
                             DrawBestMove(movesArr[1], "green");
+                        if (movesArr[2] != null)
+                            DrawBestMove(movesArr[2], "red");
+
                     }
                     else
                         overlay.ClearFrame();
                 }
            }
 
+        }
+
+        internal void Restart()
+        {
+            overlay.ClearFrame();
+            overlay.ClearElements();
         }
 
         internal void DrawBestMove(string bestMove, string color = "blue")

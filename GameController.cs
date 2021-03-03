@@ -20,8 +20,8 @@ namespace ChessHelper
 
         public GameController(Writer console)
         {
-            // field = new Field(66,1,142,34,54,528);
-            Field field = new Field(75, 1, 70, 40, 60, 600);   // размеры поля для тренировки
+              Field field = new Field(66,1,142,34,54,528);
+           // Field field = new Field(75, 1, 70, 40, 60, 600);   // размеры поля для тренировки
 
             if (console!=null)
                 this.console = console;
@@ -33,8 +33,6 @@ namespace ChessHelper
             board.Notify += DisplayMessage;
 
             fish = new Fish(moves );
-            
-            
 
             fish.Notify += DisplayMessage;
             moves.SetEngine(fish);
@@ -47,14 +45,10 @@ namespace ChessHelper
 
         internal void Restart()
         {
-            //board.Restart();
-            //moves.Restart();
-
-
-            //fish.ClearHistory();
-            //var moves = movesHystory.ToArray();
-            //stockfish.SetPosition(moves);
-            //stockfishF.SetPosition(moves);
+            board.Restart();
+            moves.Restart();
+            fish.Restart();
+            painter.Restart();
         }
 
         internal void StartWork()

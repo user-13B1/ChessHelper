@@ -10,6 +10,7 @@ namespace ChessHelper
     {
         internal string bestNextMove;
         internal string fastNextMove;
+        internal string slyNextMove;
         internal readonly List<string> movesHystory;
         private bool isNewMove, isNewFrame;
         internal bool IsPlayerNextMove;
@@ -43,11 +44,21 @@ namespace ChessHelper
                 Notify?.Invoke($"Black: {move}");
         }
 
+        internal void Restart()
+        {
+            bestNextMove = string.Empty;
+            qMoves = new Queue<string>();
+            isWhiteNextMove = true;
+            isNewMove = isNewFrame = false;
+            movesHystory.Clear();
+        }
+
         internal string[] GetFishMove()
         {
-            string[] moveArr = new string[2] { bestNextMove, fastNextMove };
+            string[] moveArr = new string[3] { bestNextMove, fastNextMove, slyNextMove};
             bestNextMove = null;
             fastNextMove = null;
+            slyNextMove = null;
             return moveArr;
         }
 
@@ -163,18 +174,23 @@ namespace ChessHelper
             return false;
         }
 
-        internal void SetBestMove(string bestMove)
+        internal void SetBestMove(string move)
         {
-            bestNextMove = bestMove;
+            bestNextMove = move;
             isNewFrame = true;
         }
 
-        internal void SetFastMove(string bestMove)
+        internal void SetFastMove(string move)
         {
-            fastNextMove = bestMove;
+            fastNextMove = move;
             isNewFrame = true;
         }
 
+        internal void SetSlyMove(string move)
+        {
+            slyNextMove = move;
+            isNewFrame = true;
+        }
         internal string[] GetHistoryMovesArray()
         {
             return movesHystory.ToArray();

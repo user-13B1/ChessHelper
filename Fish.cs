@@ -17,15 +17,16 @@ namespace ChessHelper
         readonly IStockfish stockfishHard;
         Moves moves;
         static object locker = new object();
-
+        int defaultDepth;
         public Fish(Moves moves )
         {
             this.moves = moves;
+            defaultDepth = 15;
 
             stockfishHard = new Stockfish.NET.Stockfish(@"stockfish.exe")
             {
                 SkillLevel = 20,
-                Depth = 15
+                Depth = defaultDepth
             };
 
         }
@@ -50,16 +51,31 @@ namespace ChessHelper
 
                     lock (locker)
                     {
-                        string bestMove = stockfishHard.GetBestMove();
-                        moves.SetBestMove(bestMove);
-
+                        stockfishHard.SkillLevel = 7;
+                        stockfishHard.Depth = 8;
                         string fastMove = stockfishHard.GetBestMove();
                         moves.SetFastMove(fastMove);
 
+                        stockfishHard.SkillLevel = 15;
+                        stockfishHard.Depth = 5;
+                        string slyMove = stockfishHard.GetBestMoveTime(50);
+                        moves.SetSlyMove(slyMove);
+
+                        stockfishHard.SkillLevel = 20;
+                        stockfishHard.Depth = defaultDepth;
+                        string bestMove = stockfishHard.GetBestMove();
+                        moves.SetBestMove(bestMove);
+
+                      
                     }
                     
                 }
             }
+        }
+
+        internal void Restart()
+        {
+            SynchMove(new string[] { });
         }
 
         internal bool IsMoveCorrect(string move)
@@ -76,7 +92,7 @@ namespace ChessHelper
         {
             lock (locker)
             {
-                stockfishHard.Depth = depth;
+                defaultDepth = depth;
             }
         }
         
