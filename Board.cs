@@ -30,7 +30,7 @@ namespace ChessHelper
             while (true)
             {
                 currMove_1 = UpdateMoveHystory();
-                Thread.Sleep(18);
+                Thread.Sleep(16);
                 currMove_2 = UpdateMoveHystory();
 
                 if (currMove_1 != currMove_2 || currMove_1 == null)

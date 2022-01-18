@@ -74,6 +74,11 @@ namespace ChessHelper
         {
             console?.WriteLine(mess);
         }
+
+        internal void DrawSet(bool @checked)
+        {
+            painter.isDraw = @checked;
+        }
     }
 }
 

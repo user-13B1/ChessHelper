@@ -137,11 +137,11 @@ namespace ChessHelper
                         move = qMoves.Dequeue();
                     }
 
-                    if (SetMove(move))
+                    if (!SetMove(move))
                         continue;
 
                     move += "q";
-                    if (SetMove(move))
+                    if (!SetMove(move))
                         continue;
 
                     Notify($"Error set move. {move}");
@@ -169,9 +169,9 @@ namespace ChessHelper
 
                 isWhiteNextMove = !isWhiteNextMove;
 
-                return true;
+                return false;
             }
-            return false;
+            return true;
         }
 
         internal void SetBestMove(string move)

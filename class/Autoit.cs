@@ -52,6 +52,7 @@ namespace ChessHelper
         {
             if (au3.WinExists(appName) != 1)
             {
+
                 Notify("Game not loaded.Please load game.");
                 return false;
             }

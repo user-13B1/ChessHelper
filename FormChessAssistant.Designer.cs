@@ -37,6 +37,7 @@ namespace ChessHelper
             this.textBoxDepth = new System.Windows.Forms.TextBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.checkBoxVsPc = new System.Windows.Forms.CheckBox();
+            this.checkBoxDrawMove = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -112,11 +113,25 @@ namespace ChessHelper
             this.checkBoxVsPc.Text = "Vs PC";
             this.checkBoxVsPc.UseVisualStyleBackColor = true;
             // 
-            // ChessHelper
+            // checkBoxDrawMove
+            // 
+            this.checkBoxDrawMove.AutoSize = true;
+            this.checkBoxDrawMove.Checked = true;
+            this.checkBoxDrawMove.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxDrawMove.Location = new System.Drawing.Point(12, 211);
+            this.checkBoxDrawMove.Name = "checkBoxDrawMove";
+            this.checkBoxDrawMove.Size = new System.Drawing.Size(86, 19);
+            this.checkBoxDrawMove.TabIndex = 9;
+            this.checkBoxDrawMove.Text = "Draw move";
+            this.checkBoxDrawMove.UseVisualStyleBackColor = true;
+            this.checkBoxDrawMove.CheckedChanged += new System.EventHandler(this.checkBoxDrawMove_CheckedChanged);
+            // 
+            // FormChessAssistant
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(204, 248);
+            this.Controls.Add(this.checkBoxDrawMove);
             this.Controls.Add(this.checkBoxVsPc);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.ButtonStart);
@@ -124,7 +139,7 @@ namespace ChessHelper
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
-            this.Name = "ChessHelper";
+            this.Name = "FormChessAssistant";
             this.Text = "Rook move!";
             this.Load += new System.EventHandler(this.Form_Load);
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
@@ -143,6 +158,7 @@ namespace ChessHelper
         private System.Windows.Forms.TextBox textBoxDepth;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.CheckBox checkBoxVsPc;
+        private System.Windows.Forms.CheckBox checkBoxDrawMove;
     }
 }
 

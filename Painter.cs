@@ -12,11 +12,14 @@ namespace ChessHelper
         internal event NotifyDelegate Notify;
         private Moves moves;
         private Board board;
+        internal bool isDraw;
+
         public Painter(Field field, Board board, Moves moves)
         {
             this.field = field;
             this.board = board;
             this.moves = moves;
+            isDraw = true;
             overlay = new Overlay(field.Width, field.Width);
         }
         internal void Draw()
@@ -24,7 +27,7 @@ namespace ChessHelper
            while(true)
            {
                 Thread.Sleep(20);
-                if (moves.IsNewFrame())
+                if (moves.IsNewFrame() && isDraw)
                 {
                     if (moves.IsPlayerNextMove)
                     { 
@@ -90,6 +93,7 @@ namespace ChessHelper
             }
             overlay.UpdateFrame();
         }
+
 
         internal void OverlayLoad()
         {

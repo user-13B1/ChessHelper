@@ -46,6 +46,8 @@ namespace ChessHelper
             
         }
 
+
+
         private void TextBoxDepth_TextChanged(object sender, EventArgs e)
         {
             if (!Int32.TryParse(textBoxDepth.Text, out _))
@@ -62,5 +64,9 @@ namespace ChessHelper
             gameController.SetDepthMoves(trackBar1.Value);
         }
 
+        private void checkBoxDrawMove_CheckedChanged(object sender, EventArgs e)
+        {
+            gameController.DrawSet(checkBoxDrawMove.Checked);
+        }
     }
 }
